@@ -20,9 +20,11 @@ doit pouvoir être testée sans interface.
 
 ## Décision
 
-- Framework : **Laravel**, dans sa version stable courante au démarrage du
-  projet. La version et la version de PHP requise sont à vérifier dans la
-  documentation officielle avant l'installation.
+- Framework : **Laravel 13**, version courante au démarrage du projet. Elle
+  exige PHP 8.3 ou plus (vérifié sur la documentation officielle le
+  2026-10-14). L'environnement de développement doit donc être mis à jour
+  avant l'installation, et l'hébergeur de démonstration doit proposer PHP 8.3
+  ou plus.
 - Forme : **monolithe**, avec l'interface rendue côté serveur (Blade).
 - Logique métier dans des classes dédiées (services), indépendantes des
   contrôleurs et des vues, pour pouvoir les tester seules et les exposer plus
@@ -37,4 +39,5 @@ doit pouvoir être testée sans interface.
 - Positif : le moteur de calcul est testable sans base de données ni interface.
 - Négatif : l'interface sera simple et classique, sans interactions temps réel.
 - À faire : documenter l'API dans une étape ultérieure, si elle entre dans le périmètre.
+- À faire : mettre PHP à jour sur le poste de développement (8.2 actuellement).
 - À revoir si : un client externe (application mobile) doit consommer l'API.
