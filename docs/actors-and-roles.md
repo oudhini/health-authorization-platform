@@ -40,7 +40,7 @@ le patient ou son accompagnant, le médecin, la caisse de l'hôpital.
 - Un utilisateur ne peut jamais lire ni modifier la demande d'une autre
   organisation, même s'il connaît son identifiant.
 - Celui qui crée une demande ne peut pas la décider (séparation des rôles).
-- Un bon approuvé ne peut plus être modifié. Toute correction crée une nouvelle version.
+- Un bon approuvé ne peut plus être modifié. La correction par nouvelle version est prévue en V2.
 - Chaque action sensible (envoi, décision, téléchargement) est écrite dans le journal d'audit avec l'utilisateur, la date et la demande concernée.
 
 ## 5. Questions ouvertes
