@@ -1,6 +1,6 @@
 # Cahier des charges V1
 
-> Statut : brouillon. Les sections marquées À FAIRE seront rédigées plus tard.
+> Statut : version 1 rédigée, à relire avant le début du développement.
 
 ## 1. Contexte et objectif
 
@@ -32,9 +32,20 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 - Toute intégration avec un vrai assureur, hôpital ou messagerie
 - Toute donnée personnelle ou médicale réelle
 - Paiement en ligne
+- Correction d'un bon déjà approuvé (nouvelle version du bon, prévue en V2)
 
 ## 3. Acteurs et rôles
-À FAIRE (voir docs/actors-and-roles.md)
+
+Trois rôles dans le MVP (détail des droits dans `docs/actors-and-roles.md`) :
+
+| Rôle | Nom dans le code | Organisation |
+|---|---|---|
+| Agent d'établissement | `facility_agent` | Établissement |
+| Gestionnaire assureur | `insurer_manager` | Assureur |
+| Administrateur | `platform_admin` | Plateforme |
+
+Règle principale : chaque utilisateur appartient à une seule organisation et
+ne voit que les données de son organisation et celles qui lui sont adressées.
 
 ## 4. Entités métier
 
@@ -50,12 +61,12 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 | Souscripteur | `subscriber` | Entreprise qui souscrit | nom, assureur |
 | Assuré principal | `policyholder` | Salarié titulaire | nom, souscripteur |
 | Bénéficiaire | `beneficiary` | Personne qui reçoit les soins | nom, date de naissance, assuré principal, lien de parenté |
-| Police | `policy` | Contrat de couverture | assureur, souscripteur, taux de prise en charge, début, fin |
+| Police | `policy` | Contrat de couverture | numéro, assureur, souscripteur, taux de prise en charge, début, fin |
 | Acte médical | `medical_act` | Prestation catalogue | code, libellé |
 | Tarif officiel | `official_tariff` | Prix reconnu d'un acte | acte, montant, date d'entrée en vigueur |
-| Demande | `authorization_request` | Demande envoyée à l'assureur | établissement, bénéficiaire, police, statut, créée par |
+| Demande | `authorization_request` | Demande envoyée à l'assureur | établissement, bénéficiaire, police, statut, créée par, demande liée (optionnelle) |
 | Ligne de demande | `authorization_item` | Un acte dans la demande | acte, montant facturé, tarif officiel appliqué, montant accepté, part assureur, reste à charge |
-| Bon de prise en charge | `authorization` | Décision d'approbation | demande, numéro, valid_from, valid_until, décidé par, version |
+| Bon de prise en charge | `authorization` | Décision d'approbation | demande, numéro, valid_from, valid_until, décidé par |
 | Document | `document` | Pièce jointe | demande, type, chemin de stockage privé, déposé par |
 | Journal d'audit | `audit_log` | Trace des actions sensibles | utilisateur, action, objet concerné, date |
 
@@ -64,13 +75,14 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 - Une organisation a plusieurs utilisateurs ; un utilisateur appartient à une seule organisation.
 - Un assuré principal a plusieurs bénéficiaires.
 - Une demande concerne un bénéficiaire, une police et un établissement, et contient une ou plusieurs lignes.
-- Une demande approuvée donne un bon ; une correction crée une nouvelle version du bon.
+- Une demande approuvée donne un bon.
+- Une demande d'examen peut être liée à la demande de consultation dont elle découle.
 - Une demande peut avoir plusieurs documents.
 
 ### 4.3 Règles de conception
 
 - Chaque ligne de demande **copie** le tarif officiel appliqué au moment de la décision : si la grille change plus tard, les anciens bons ne changent pas.
-- Un bon approuvé n'est jamais modifié : toute correction crée une nouvelle version.
+- Un bon approuvé n'est jamais modifié. La correction par nouvelle version est prévue en V2.
 - Les documents sont stockés hors du dossier public, avec un accès contrôlé.
 - Les données de démonstration sont entièrement fictives.
 
@@ -98,7 +110,7 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 | De | Vers | Qui | Conditions | Effets |
 |---|---|---|---|---|
 | `draft` | `submitted` | `facility_agent` | Au moins une ligne ; bénéficiaire couvert par une police active ; documents obligatoires joints | Écriture dans le journal d'audit |
-| `submitted` | `approved` | `insurer_manager` | Demande adressée à son assureur ; différent du créateur | Génère le bon (numéro, validité, montants calculés) |
+| `submitted` | `approved` | `insurer_manager` | Demande adressée à son assureur | Génère le bon (numéro, validité, montants calculés) |
 | `submitted` | `rejected` | `insurer_manager` | Motif obligatoire | Journal d'audit |
 | `submitted` | `info_requested` | `insurer_manager` | Message obligatoire | Journal d'audit |
 | `info_requested` | `submitted` | `facility_agent` | Complément ajouté | Journal d'audit |
@@ -110,8 +122,9 @@ Toute autre transition est **interdite** et doit être refusée par le système.
 ### 5.3 États du bon
 
 - `active` : la date du jour est comprise dans [valid_from, valid_until].
-- `expired` : la date du jour est après `valid_until`. Cet état est **calculé** à partir des dates, il n'est pas stocké.
-- `superseded` : remplacé par une version plus récente après correction.
+- `expired` : la date du jour est après `valid_until`.
+
+Ces états sont **calculés** à partir des dates, ils ne sont pas stockés.
 
 ### 5.4 Schéma
 
@@ -136,7 +149,6 @@ stateDiagram-v2
 - Une demande envoyée peut-elle être annulée par l'établissement avant la décision ?
 - Une demande refusée peut-elle être rouverte, ou faut-il en créer une nouvelle ?
 
-
 ## 6. Règles de calcul de la couverture
 
 ### 6.1 Définitions
@@ -148,17 +160,20 @@ stateDiagram-v2
 
 ### 6.2 Règles (calculées par acte, jamais sur le total)
 1. accepted_amount = min(billed_amount, official_tariff)
-2. insurer_share   = arrondi(coverage_rate x accepted_amount)
+2. insurer_share   = arrondi(accepted_amount x coverage_rate / 100), à l'entier le plus proche
 3. patient_share   = billed_amount - insurer_share
 4. overrun         = max(0, billed_amount - official_tariff)
 5. Les totaux du bon sont la somme des valeurs calculées par acte.
+
+Le dépassement (`overrun`) est une information affichée sur le bon : il est
+déjà inclus dans `patient_share`, il ne doit pas être ajouté une seconde fois.
 
 ### 6.3 Invariants
 - Tous les montants sont des entiers positifs ou nuls (le FCFA n'a pas de décimales).
 - insurer_share + patient_share = billed_amount, toujours.
 - 0 <= insurer_share <= accepted_amount <= billed_amount.
 - Seuls les actes explicitement listés sur le bon sont couverts.
-- Une prestation est couverte uniquement si sa date est dans [valid_from, valid_until].
+- Un bon n'est utilisable que dans [valid_from, valid_until]. La plateforme affiche ce statut ; elle ne contrôle pas la date de la prestation (hors MVP).
 - La validité par défaut est de 7 jours ; elle est stockée dans chaque bon, pas écrite en dur dans le code.
 
 ### 6.4 Cas de référence (valeurs fictives)
@@ -173,7 +188,7 @@ stateDiagram-v2
 ### 6.5 Questions ouvertes
 - Quand le prix de l'établissement est inférieur au tarif, l'assureur paie-t-il bien le prix facturé ? (cas A)
 - Le taux de prise en charge est-il toujours de 100 % ? (cas D, E)
-- Règle d'arrondi quand taux x montant accepté n'est pas un entier (proposition : arrondi à l'entier le plus proche).
+- Règle d'arrondi quand taux x montant accepté n'est pas un entier (proposition : arrondi à l'entier le plus proche, calculé en entiers pour éviter les erreurs de décimales).
 - Source et mise à jour du tarif officiel (grille de l'État, coefficient de l'acte x valeur unitaire ?).
 - La franchise d'hospitalisation est exprimée en jours : hors MVP pour l'instant.
 - Médicaments : hors MVP.
@@ -212,8 +227,6 @@ stateDiagram-v2
 ### 7.4 Hors MVP
 
 Paiement du reste à charge à la caisse, médicaments, claims et facturation.
-
-
 
 ## 8. Exigences non fonctionnelles
 
@@ -260,7 +273,6 @@ Sont écrits dans le journal d'audit : connexion et échec de connexion, créati
 - Migrations de base de données réversibles.
 - Messages de commit au format Conventional Commits.
 
-
 ## 9. Critères de réussite
 
 Le projet est terminé quand tous les critères ci-dessous sont remplis.
@@ -282,7 +294,6 @@ Le projet est terminé quand tous les critères ci-dessous sont remplis.
 
 Hors critères pour la V1 : claims, facturation, médicaments.
 
-
 ## 10. Questions ouvertes
 
 Légende : **Terrain** = à demander à une personne qui connaît le processus ;
@@ -303,3 +314,4 @@ Légende : **Terrain** = à demander à une personne qui connaît le processus ;
 | 11 | Qui gère polices et tarifs : administrateur plateforme ou assureur ? | Rôles | Décision | Phase 2 |
 | 12 | Cadre légal camerounais sur les données de santé et personnelles | 8.4 | Recherche | Avant mise en ligne |
 | 13 | Circuit des médicaments côté pharmacie | Document de départ | Terrain | Hors MVP |
+| 14 | Hébergeur et base de données (ADR 0002) | ADR 0001 | Décision | Avant l'installation de Laravel |
