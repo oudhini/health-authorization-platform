@@ -27,7 +27,7 @@ Chaque terme métier est associé au nom utilisé dans le code (en anglais).
 | Terme métier | Nom dans le code | Définition |
 |---|---|---|
 | Bon de prise en charge | `authorization` | Document par lequel l'assureur accepte de payer certains actes, avec limites et durée de validité. |
-| Fiche maladie | `medical_form` | Document rempli, signé et cachetĂ© par le médecin après la consultation. |
+| Fiche maladie | `medical_form` | Document rempli, signé et cacheté par le médecin après la consultation. |
 | Demande de prise en charge | `authorization_request` | Demande envoyée par l'établissement à l'assureur avant la décision. |
 
 ## Actes et montants
