@@ -81,7 +81,61 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 - Le lien de parenté est-il nécessaire pour les règles de calcul, ou seulement informatif ?
 
 ## 5. Cycle de vie d'une demande (états et transitions)
-À FAIRE
+
+### 5.1 États
+
+| État | Nom dans le code | Signification | Final ? |
+|---|---|---|---|
+| Brouillon | `draft` | En cours de saisie par l'établissement | Non |
+| Envoyée | `submitted` | Transmise à l'assureur, en attente de décision | Non |
+| Informations demandées | `info_requested` | L'assureur attend des compléments | Non |
+| Approuvée | `approved` | Un bon a été généré | Oui |
+| Refusée | `rejected` | Refus motivé | Oui |
+| Annulée | `cancelled` | Abandonnée par l'établissement | Oui |
+
+### 5.2 Transitions autorisées
+
+| De | Vers | Qui | Conditions | Effets |
+|---|---|---|---|---|
+| `draft` | `submitted` | `facility_agent` | Au moins une ligne ; bénéficiaire couvert par une police active ; documents obligatoires joints | Écriture dans le journal d'audit |
+| `submitted` | `approved` | `insurer_manager` | Demande adressée à son assureur ; différent du créateur | Génère le bon (numéro, validité, montants calculés) |
+| `submitted` | `rejected` | `insurer_manager` | Motif obligatoire | Journal d'audit |
+| `submitted` | `info_requested` | `insurer_manager` | Message obligatoire | Journal d'audit |
+| `info_requested` | `submitted` | `facility_agent` | Complément ajouté | Journal d'audit |
+| `draft` | `cancelled` | `facility_agent` | — | Journal d'audit |
+| `info_requested` | `cancelled` | `facility_agent` | — | Journal d'audit |
+
+Toute autre transition est **interdite** et doit être refusée par le système.
+
+### 5.3 États du bon
+
+- `active` : la date du jour est comprise dans [valid_from, valid_until].
+- `expired` : la date du jour est après `valid_until`. Cet état est **calculé** à partir des dates, il n'est pas stocké.
+- `superseded` : remplacé par une version plus récente après correction.
+
+### 5.4 Schéma
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft
+    draft --> submitted
+    draft --> cancelled
+    submitted --> approved
+    submitted --> rejected
+    submitted --> info_requested
+    info_requested --> submitted
+    info_requested --> cancelled
+    approved --> [*]
+    rejected --> [*]
+    cancelled --> [*]
+```
+
+### 5.5 Questions ouvertes
+
+- Faut-il un état `under_review` pour savoir qu'un gestionnaire a ouvert la demande ?
+- Une demande envoyée peut-elle être annulée par l'établissement avant la décision ?
+- Une demande refusée peut-elle être rouverte, ou faut-il en créer une nouvelle ?
+
 
 ## 6. Règles de calcul de la couverture
 
@@ -125,13 +179,127 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 - Médicaments : hors MVP.
 
 ## 7. Workflows principaux
-À FAIRE
+
+### 7.1 Workflow 1 : consultation
+
+1. `facility_agent` recherche le bénéficiaire (nom, numéro de police).
+2. Le système vérifie qu'une police active couvre le bénéficiaire.
+3. `facility_agent` crée une demande et ajoute les actes (code, montant facturé).
+4. Le système calcule pour chaque ligne le tarif officiel, le montant accepté, la part assureur et le reste à charge (section 6).
+5. `facility_agent` joint les documents requis puis envoie la demande (`draft` → `submitted`).
+6. `insurer_manager` examine la demande et la fait passer à `approved`, `rejected` ou `info_requested`.
+7. Si `approved`, le système génère le bon avec son numéro, sa validité (7 jours par défaut), la liste des actes autorisés, la part assureur et le reste à charge.
+8. `facility_agent` télécharge et imprime le bon en PDF.
+
+### 7.2 Workflow 2 : examen prescrit
+
+1. Une consultation a eu lieu (workflow 1 déjà approuvé).
+2. Le médecin prescrit un examen sur la fiche maladie, signée et cachetée (document papier, hors plateforme).
+3. `facility_agent` crée une **nouvelle demande liée** à la demande de consultation et y joint la fiche maladie numérisée.
+4. Les étapes 3 à 8 du workflow 1 s'appliquent ensuite.
+
+### 7.3 Cas alternatifs
+
+| Situation | Comportement attendu |
+|---|---|
+| Bénéficiaire sans police active | L'envoi est refusé avec un message clair |
+| Document obligatoire manquant | L'envoi est refusé et la liste des pièces manquantes est affichée |
+| Informations demandées | La demande revient à l'établissement avec le message de l'assureur |
+| Refus | Le motif est visible par l'établissement |
+| Bon expiré | Affiché comme expiré ; un nouveau bon exige une nouvelle demande |
+| Prix facturé supérieur au tarif officiel | Le dépassement est calculé et indiqué sur le bon |
+
+### 7.4 Hors MVP
+
+Paiement du reste à charge à la caisse, médicaments, claims et facturation.
+
+
 
 ## 8. Exigences non fonctionnelles
-À FAIRE (sécurité, audit, confidentialité)
+
+### 8.1 Sécurité
+
+| Exigence | Vérification |
+|---|---|
+| Mots de passe stockés hachés avec le mécanisme du framework | Revue de code, jamais de mot de passe en clair en base |
+| Limitation du nombre de tentatives de connexion | Test automatisé |
+| Un utilisateur ne voit jamais les données d'une autre organisation | Test d'isolation entre organisations |
+| Toute entrée est validée côté serveur | Tests de validation sur chaque formulaire |
+| Requêtes paramétrées, protection CSRF et XSS fournies par le framework | Revue de code, pas de contournement |
+| Aucun secret dans le dépôt ; `.env` ignoré, `.env.example` fourni | Contrôle avant chaque commit |
+| Messages d'erreur sans détails techniques pour l'utilisateur | Test en mode production |
+
+### 8.2 Documents
+
+- Types acceptés : PDF, JPEG, PNG uniquement.
+- Taille maximale : 5 Mo par fichier (valeur de départ).
+- Stockage hors du dossier public, nom de fichier généré aléatoirement.
+- Téléchargement uniquement par un utilisateur autorisé sur la demande concernée.
+
+### 8.3 Audit
+
+Sont écrits dans le journal d'audit : connexion et échec de connexion, création, envoi et décision d'une demande, génération et téléchargement d'un bon, changement de rôle. Chaque entrée contient l'utilisateur, l'action, l'objet, la date. Aucune donnée médicale détaillée dans les journaux.
+
+### 8.4 Données et confidentialité
+
+- Données de démonstration **entièrement fictives**, aucune donnée réelle dans le dépôt, la base de démo ou la vidéo.
+- Collecte minimale : seulement les champs nécessaires aux règles de la section 6.
+
+### 8.5 Qualité et utilisabilité
+
+- Listes paginées (20 éléments par page au départ).
+- Index en base justifiés par les requêtes réelles.
+- États de chargement, de liste vide et d'erreur sur chaque écran.
+- Affichage utilisable sur mobile et sur ordinateur.
+- Formulaires accessibles : étiquettes, messages d'erreur lisibles, navigation au clavier.
+
+### 8.6 Ingénierie
+
+- Linter, formateur et analyse statique sans erreur.
+- Intégration continue verte avant chaque fusion.
+- Migrations de base de données réversibles.
+- Messages de commit au format Conventional Commits.
+
 
 ## 9. Critères de réussite
-À FAIRE
+
+Le projet est terminé quand tous les critères ci-dessous sont remplis.
+
+| # | Critère | Comment le vérifier |
+|---|---|---|
+| 1 | Les 5 cas de référence de la section 6.4 passent en test automatisé | Commande de test |
+| 2 | Le workflow consultation fonctionne de bout en bout | Parcours manuel + test d'intégration |
+| 3 | Le workflow examen fonctionne avec une demande liée | Parcours manuel |
+| 4 | Un `facility_agent` ne peut pas approuver ; un `insurer_manager` ne peut pas créer | Tests d'autorisation |
+| 5 | Une organisation ne voit jamais les données d'une autre | Test d'isolation |
+| 6 | Le bon est généré en PDF avec les montants corrects | Comparaison avec les cas de référence |
+| 7 | Documents : upload limité aux types et tailles autorisés, téléchargement contrôlé | Tests |
+| 8 | Le journal d'audit enregistre les actions listées en 8.3 | Consultation par `platform_admin` |
+| 9 | L'intégration continue est verte | Badge dans le README |
+| 10 | Application déployée avec des comptes de démonstration | URL publique |
+| 11 | README et `docs/` à jour, avec au moins trois décisions d'architecture documentées | Relecture |
+| 12 | Vidéo de démonstration de 3 à 5 minutes | Fichier ou lien |
+
+Hors critères pour la V1 : claims, facturation, médicaments.
+
 
 ## 10. Questions ouvertes
-À FAIRE (regrouper ici toutes les questions ouvertes)
+
+Légende : **Terrain** = à demander à une personne qui connaît le processus ;
+**Décision** = je tranche moi-même ; **Recherche** = à chercher dans une source officielle.
+
+| # | Question | Origine | Type | À résoudre avant |
+|---|---|---|---|---|
+| 1 | Quand le prix de l'établissement est inférieur au tarif, l'assureur paie-t-il le prix facturé ? | 6.5 | Terrain | Phase 1 |
+| 2 | Le taux de prise en charge est-il toujours de 100 % ? | 6.5 | Terrain | Phase 1 |
+| 3 | Règle d'arrondi quand le taux donne un montant non entier | 6.5 | Décision | Phase 1 |
+| 4 | Source et mise à jour du tarif officiel (coefficient × valeur unitaire ?) | 6.5 | Recherche | Phase 1 |
+| 5 | Rôle exact du médecin-conseil | Glossaire, 3 | Terrain | Phase 2 |
+| 6 | Un état `under_review` est-il utile ? | 5.5 | Décision | Phase 2 |
+| 7 | Annulation possible d'une demande envoyée ? | 5.5 | Décision | Phase 2 |
+| 8 | Demande refusée : rouvrir ou en recréer une ? | 5.5 | Terrain | Phase 2 |
+| 9 | Catalogue d'actes commun ou propre à chaque assureur ? | 4.4 | Décision | Phase 1 |
+| 10 | Un bénéficiaire peut-il avoir plusieurs polices ? | 4.4 | Terrain | Phase 2 |
+| 11 | Qui gère polices et tarifs : administrateur plateforme ou assureur ? | Rôles | Décision | Phase 2 |
+| 12 | Cadre légal camerounais sur les données de santé et personnelles | 8.4 | Recherche | Avant mise en ligne |
+| 13 | Circuit des médicaments côté pharmacie | Document de départ | Terrain | Hors MVP |
