@@ -37,7 +37,48 @@ assureur fictif), indépendant de tout assureur ou hôpital réel.
 À FAIRE (voir docs/actors-and-roles.md)
 
 ## 4. Entités métier
-À FAIRE
+
+> Les noms en `code` sont ceux du glossaire et deviendront les noms de tables
+> et de colonnes. Les montants sont des entiers (FCFA).
+
+### 4.1 Entités
+
+| Entité | Nom dans le code | Rôle | Attributs principaux |
+|---|---|---|---|
+| Organisation | `organization` | Établissement ou assureur | nom, type (`facility` ou `insurer`) |
+| Utilisateur | `user` | Compte de connexion | nom, email, mot de passe haché, rôle, organisation |
+| Souscripteur | `subscriber` | Entreprise qui souscrit | nom, assureur |
+| Assuré principal | `policyholder` | Salarié titulaire | nom, souscripteur |
+| Bénéficiaire | `beneficiary` | Personne qui reçoit les soins | nom, date de naissance, assuré principal, lien de parenté |
+| Police | `policy` | Contrat de couverture | assureur, souscripteur, taux de prise en charge, début, fin |
+| Acte médical | `medical_act` | Prestation catalogue | code, libellé |
+| Tarif officiel | `official_tariff` | Prix reconnu d'un acte | acte, montant, date d'entrée en vigueur |
+| Demande | `authorization_request` | Demande envoyée à l'assureur | établissement, bénéficiaire, police, statut, créée par |
+| Ligne de demande | `authorization_item` | Un acte dans la demande | acte, montant facturé, tarif officiel appliqué, montant accepté, part assureur, reste à charge |
+| Bon de prise en charge | `authorization` | Décision d'approbation | demande, numéro, valid_from, valid_until, décidé par, version |
+| Document | `document` | Pièce jointe | demande, type, chemin de stockage privé, déposé par |
+| Journal d'audit | `audit_log` | Trace des actions sensibles | utilisateur, action, objet concerné, date |
+
+### 4.2 Relations
+
+- Une organisation a plusieurs utilisateurs ; un utilisateur appartient à une seule organisation.
+- Un assuré principal a plusieurs bénéficiaires.
+- Une demande concerne un bénéficiaire, une police et un établissement, et contient une ou plusieurs lignes.
+- Une demande approuvée donne un bon ; une correction crée une nouvelle version du bon.
+- Une demande peut avoir plusieurs documents.
+
+### 4.3 Règles de conception
+
+- Chaque ligne de demande **copie** le tarif officiel appliqué au moment de la décision : si la grille change plus tard, les anciens bons ne changent pas.
+- Un bon approuvé n'est jamais modifié : toute correction crée une nouvelle version.
+- Les documents sont stockés hors du dossier public, avec un accès contrôlé.
+- Les données de démonstration sont entièrement fictives.
+
+### 4.4 Questions ouvertes
+
+- Faut-il séparer le catalogue d'actes de chaque assureur, ou un catalogue commun ?
+- Un bénéficiaire peut-il être couvert par plusieurs polices ?
+- Le lien de parenté est-il nécessaire pour les règles de calcul, ou seulement informatif ?
 
 ## 5. Cycle de vie d'une demande (états et transitions)
 À FAIRE
