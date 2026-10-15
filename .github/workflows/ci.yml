@@ -1,0 +1,38 @@
+# Continuous integration: runs the automated tests on every push to main and
+# on every pull request. A red cross on GitHub means "something is broken".
+#
+# Before using it: open the page of each action below (actions/checkout and
+# shivammathur/setup-php) and check which major version is currently
+# recommended. Versions change; these were the ones I knew.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # Add a code style step here once you have run Pint locally, for
+      # example: vendor/bin/pint --test (check that Pint is installed first).
+
+      - name: Run tests
+        run: php artisan test
