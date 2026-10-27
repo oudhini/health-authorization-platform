@@ -37,8 +37,8 @@ Chaque terme métier est associé au nom utilisé dans le code (en anglais).
 | Acte médical | `medical_act` | Une prestation précise (consultation, échographie, etc.). |
 | Montant facturé | `billed_amount` | Prix demandé par l'établissement pour un acte. |
 | Tarif officiel | `official_tariff` | Prix reconnu par l'État pour cet acte. |
-| Montant accepté | `accepted_amount` | Le plus petit entre le montant facturé et le tarif officiel. |
-| Part de l'assureur | `insurer_share` | Ce que l'assureur paie. |
+| Montant accepté | `accepted_amount` | Le plus petit entre le montant facturé et le tarif de référence. |
+| Part de l'assureur | `insurer_share` | Le taux de prise en charge appliqué au montant accepté, selon la police. |
 | Reste à charge | `patient_share` | Ce que le patient paie. |
 | Dépassement | `overrun` | Partie du prix facturé au-dessus du tarif officiel. |
 | Proforma | `proforma` | À vérifier : probablement le devis établi par l'établissement avant l'acte. |

@@ -32,8 +32,11 @@ le patient ou son accompagnant, le médecin, la caisse de l'hôpital.
 | Demander des informations complémentaires | Non | Oui | Non |
 | Télécharger le bon en PDF | Oui (son établissement) | Oui (son assureur) | Non |
 | Consulter le journal d'audit | Non | Non | Oui |
-| Gérer les comptes utilisateurs | Non | Non | Oui |
-| Gérer polices, taux et tarifs | Non | Non | Oui |
+| Créer/modifier/désactiver les comptes (rôle et organisation cohérents) | Non | Non | Oui |
+| Créer/renommer les organisations | Non | Non | Oui |
+| Gérer souscripteurs, assurés, bénéficiaires et polices de son assureur | Non | Oui | Oui (correction exceptionnelle) |
+| Gérer le catalogue commun d'actes et ajouter les tarifs datés | Non | Non | Oui |
+| Configurer les assureurs partenaires d'un établissement | Non | Non | Oui |
 
 ## 4. Règles de sécurité sur les rôles
 
@@ -41,6 +44,10 @@ le patient ou son accompagnant, le médecin, la caisse de l'hôpital.
   organisation, même s'il connaît son identifiant.
 - Celui qui crée une demande ne peut pas la décider (séparation des rôles).
 - Un bon approuvé ne peut plus être modifié. La correction par nouvelle version est prévue en V2.
+- Seul l'agent qui a créé un brouillon peut modifier ses lignes; un brouillon envoyé ou un état ultérieur est immuable.
+- Les comptes désactivés ne peuvent pas se connecter; une session déjà ouverte est terminée à la requête suivante.
+- Un compte ne peut être rattaché qu'à une organisation correspondant à son rôle; un administrateur plateforme n'a pas d'organisation.
+- Un acte désactivé n'est plus proposé pour les nouvelles demandes. Les actes et tarifs restent conservés pour préserver l'historique.
 - Chaque action sensible (envoi, décision, téléchargement) est écrite dans le journal d'audit avec l'utilisateur, la date et la demande concernée.
 
 ## 5. Questions ouvertes
@@ -48,4 +55,4 @@ le patient ou son accompagnant, le médecin, la caisse de l'hôpital.
 - Le médecin-conseil est-il un rôle séparé de `insurer_manager`, ou la même personne ? (hors MVP pour l'instant)
 - Plusieurs établissements peuvent-ils partager un même assureur dans la démo ?
 - Le patient doit-il avoir un accès en lecture à son propre bon ? (hors MVP)
-- Qui gère les polices et les tarifs : l'administrateur de la plateforme ou l'assureur ?
+- Qui est autorisé à gérer le catalogue d'actes et les tarifs, et selon quelle source ?

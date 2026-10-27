@@ -39,5 +39,5 @@ doit pouvoir être testée sans interface ni base de données.
 - Positif : un seul dépôt, un seul déploiement, peu de dépendances.
 - Positif : le moteur de calcul et le cycle de vie se testent sans base de données.
 - Négatif : interface simple et classique, sans interactions en temps réel.
-- Contrainte : l'hébergeur de démonstration doit proposer PHP 8.4.1 ou plus.
+- Contrainte : un hébergeur de présentation du portfolio doit proposer PHP 8.4.1 ou plus.
 - À revoir si : un client externe (application mobile) doit consommer une API.
