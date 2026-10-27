@@ -5,9 +5,12 @@
 @section('content')
     @use('App\Support\Fcfa')
 
-    <div class="d-flex justify-content-end mb-3 no-print">
-        <button type="button" class="btn btn-primary" onclick="window.print()">
-            Imprimer ou enregistrer en PDF
+    <div class="d-flex justify-content-end gap-2 mb-3 no-print">
+        <a class="btn btn-primary" href="{{ route('authorizations.pdf', $authorization) }}">
+            Télécharger le bon en PDF
+        </a>
+        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+            Imprimer cette page
         </button>
     </div>
 

@@ -19,6 +19,7 @@ enum AuditAction: string
     case RequestResponseSubmitted = 'request.response_submitted';
     case AuthorizationGenerated = 'authorization.generated';
     case AuthorizationViewed = 'authorization.viewed';
+    case AuthorizationDownloaded = 'authorization.downloaded';
     case DocumentUploaded = 'document.uploaded';
     case DocumentDownloaded = 'document.downloaded';
     case FacilityInsurersUpdated = 'facility.insurers_updated';

@@ -31,6 +31,8 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     // Authorization is checked by the DocumentPolicy (same rules as the request).
     Route::get('/documents/{document}', [DocumentController::class, 'download'])->name('documents.download');
     Route::get('/authorizations/{authorization}', [AuthorizationController::class, 'show'])->name('authorizations.show');
+    Route::get('/authorizations/{authorization}/pdf', [AuthorizationController::class, 'downloadPdf'])
+        ->name('authorizations.pdf');
 });
 
 Route::middleware(['auth', 'active', 'role:facility_agent'])

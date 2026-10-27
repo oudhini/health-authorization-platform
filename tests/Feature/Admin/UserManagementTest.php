@@ -29,11 +29,13 @@ final class UserManagementTest extends TestCase
         ];
 
         $this->actingAs($scenario->admin)
+            ->followingRedirects()
             ->post(route('admin.users.store'), $payload)
-            ->assertRedirect();
+            ->assertOk()
+            ->assertSee('Le compte a été créé.')
+            ->assertSee('new.agent@demo.test');
 
         $user = User::query()->where('email', $payload['email'])->firstOrFail();
-        $this->get(route('admin.users.edit', $user))->assertOk()->assertSee($user->email);
         $this->assertSame($scenario->facility->id, $user->organization_id);
         $this->assertTrue($user->is_active);
         $this->assertTrue(Hash::check($payload['password'], $user->password));

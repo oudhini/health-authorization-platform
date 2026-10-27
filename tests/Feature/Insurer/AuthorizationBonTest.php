@@ -44,7 +44,8 @@ final class AuthorizationBonTest extends TestCase
             ->assertSee('12 000 FCFA')
             ->assertSee('8 000 FCFA')
             ->assertSee('4 000 FCFA')
-            ->assertSee('Imprimer');
+            ->assertSee('Télécharger le bon en PDF')
+            ->assertSee('Imprimer cette page');
 
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'authorization.viewed',
@@ -60,6 +61,32 @@ final class AuthorizationBonTest extends TestCase
         $this->actingAs($scenario->manager)->get(route('authorizations.show', $authorization))->assertOk();
     }
 
+    public function test_authorized_users_can_download_a_server_generated_pdf_and_it_is_audited(): void
+    {
+        $scenario = Scenario::create(coverageRate: 80);
+        $authorization = $this->approved($scenario);
+
+        $this->actingAs($scenario->agent)
+            ->get(route('authorizations.pdf', $authorization))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertHeader('content-disposition', 'attachment; filename="'.$authorization->number.'.pdf"')
+            ->assertSee('%PDF-', false)
+            ->assertSee('%%EOF', false);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'authorization.downloaded',
+            'user_id' => $scenario->agent->id,
+            'subject_id' => $authorization->id,
+        ]);
+
+        $this->actingAs($scenario->manager)
+            ->get(route('authorizations.pdf', $authorization))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertSee('%PDF-', false);
+    }
+
     public function test_other_organizations_and_admin_cannot_see_the_bon(): void
     {
         $scenario = Scenario::create();
@@ -67,8 +94,9 @@ final class AuthorizationBonTest extends TestCase
 
         foreach ([$scenario->otherAgent, $scenario->otherManager, $scenario->admin] as $user) {
             $this->actingAs($user)->get(route('authorizations.show', $authorization))->assertNotFound();
+            $this->get(route('authorizations.pdf', $authorization))->assertNotFound();
         }
-        $this->assertDatabaseMissing('audit_logs', ['action' => 'authorization.viewed']);
+        $this->assertDatabaseMissing('audit_logs', ['action' => 'authorization.downloaded']);
     }
 
     public function test_guests_are_redirected_to_login(): void

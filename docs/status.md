@@ -27,6 +27,9 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
   sont recalculés avec le tarif courant et le taux copié à la création.
 - L'approbation génère un bon imprimable dont les montants sont copiés et
   conservés, avec dates de validité.
+- Le bon peut être affiché et téléchargé en PDF généré côté serveur; chaque
+  téléchargement est journalisé. Le fichier est généré à la demande et n'est
+  pas archivé; signature et valeur contractuelle restent hors périmètre.
 - Journalisation des actions métier et accès aux documents autorisés.
 - Interface Blade rendue côté serveur, Bootstrap intégré via Vite.
 - Le pilote Laravel `mysql` est utilisé avec MariaDB 10.4.32 sous XAMPP en
@@ -35,7 +38,7 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
 
 ## Vérifications exécutées
 
-- `& 'C:\php84\php.exe' artisan test` : 186 tests réussis, 2 086 assertions
+- `& 'C:\php84\php.exe' artisan test` : 187 tests réussis, 2 102 assertions
   sur SQLite en mémoire.
 - `npm run build` : compilation Vite réussie.
 - Les vues intégrées dans les deux portails n'utilisent pas de `<style>` ni
@@ -92,7 +95,7 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
 - Nouveaux tests du 2026-10-27 : gestion des comptes, organisations, catalogue
   et tarifs, désactivation de compte, protection des rôles, édition limitée
   aux brouillons du créateur et recalcul des lignes. Ils portent la suite à
-  186 tests et 2 086 assertions.
+  187 tests et 2 102 assertions, avec vérification du PDF généré.
 
 ## Préparation avant le retravail visuel du front
 

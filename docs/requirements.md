@@ -30,7 +30,8 @@ attendu, mais n'est pas l'objectif métier principal.
 - Workflow de prise en charge pour une consultation
 - Workflow simplifié de prise en charge pour un examen
 - Calcul de la couverture (voir section 6)
-- Bon de prise en charge imprimable ou enregistrable en PDF depuis le navigateur
+- Bon de prise en charge affichable et téléchargeable sous forme de PDF généré
+  côté serveur; impression navigateur conservée en complément
 - Authentification et contrôle d'accès par rôle
 - Dépôt sécurisé de documents
 - Journal d'audit
