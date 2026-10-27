@@ -42,6 +42,16 @@ final class AuthorizationRequestPolicy
         return $this->facilityOwnerOnly($user, $request);
     }
 
+    public function editDraft(User $user, AuthorizationRequest $request): Response
+    {
+        $allowed = $user->role === UserRole::FacilityAgent
+            && $this->belongsToFacility($user, $request)
+            && (int) $request->created_by === (int) $user->id
+            && $request->status === RequestStatus::Draft;
+
+        return $allowed ? Response::allow() : Response::denyAsNotFound();
+    }
+
     public function cancel(User $user, AuthorizationRequest $request): Response
     {
         return $this->facilityOwnerOnly($user, $request);

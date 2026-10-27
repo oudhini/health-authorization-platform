@@ -27,6 +27,13 @@ ni de l'aptitude à traiter de vraies données.
   établissement-assureur a aussi été parcouru sur MySQL local.
 - Il n'y a pas d'intégration à un assureur ou établissement réel, ni de
   validation multi-acteurs documentée du workflow.
+- L'administration des organisations et comptes, le catalogue commun et
+  l'historique des tarifs, ainsi que l'édition contrôlée des brouillons sont
+  implémentés et couverts par des tests automatisés.
+- Le socle fonctionnel MVP précède le retravail visuel du front. L'hébergement
+  reste reporté jusqu'à ce que le socle soit jugé suffisamment solide, comme
+  indiqué dans `docs/status.md`; aucune mise en ligne n'est nécessaire pour
+  poursuivre le travail fonctionnel.
 - Claims et facturation sont reportés à la V2. Le circuit des médicaments
   reste hors du premier workflow.
 
@@ -51,6 +58,10 @@ ni de l'aptitude à traiter de vraies données.
 | 2.5 | Vérifier les états d'erreur, de demande d'informations, de refus et de reprise | Les utilisateurs savent quoi faire ensuite à chaque état |
 | 2.6 | Définir qui maintient les bénéficiaires, contrats, taux et tarifs dans le système | Responsabilités et autorisations documentées |
 | 2.7 | Gérer le portefeuille assuré par assureur, avec import CSV contrôlé et corrections manuelles | Cloisonnement et règles d'import testés; format provisoire confronté à des exemples fictifs |
+
+Les fonctionnalités confirmées du socle (comptes/organisations, catalogue,
+tarifs et édition des brouillons) sont en place. La validation métier des
+formats et règles demeure distincte de l'achèvement technique.
 
 Claims, facturation, règlement et médicaments ne font pas partie de cette
 phase. Ils seront réévalués après validation du workflow principal.

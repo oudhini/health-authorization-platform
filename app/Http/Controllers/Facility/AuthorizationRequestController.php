@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Facility;
 use App\Actions\Requests\CancelAuthorizationRequest;
 use App\Actions\Requests\CreateAuthorizationRequest;
 use App\Actions\Requests\SubmitAuthorizationRequest;
+use App\Actions\Requests\UpdateAuthorizationRequest;
 use App\Domain\Requests\Exceptions\CannotCreateRequest;
 use App\Domain\Requests\Exceptions\CannotSubmitRequest;
 use App\Domain\Requests\Exceptions\InvalidStatusTransition;
@@ -15,6 +16,7 @@ use App\Enums\OrganizationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Facility\ResubmitAuthorizationRequestRequest;
 use App\Http\Requests\Facility\StoreAuthorizationRequestRequest;
+use App\Http\Requests\Facility\UpdateAuthorizationRequestRequest;
 use App\Models\AuthorizationRequest;
 use App\Models\Beneficiary;
 use App\Models\MedicalAct;
@@ -93,7 +95,7 @@ final class AuthorizationRequestController extends Controller
         }
 
         return view('facility.requests.create', [
-            'acts' => MedicalAct::query()->orderBy('label')->get(),
+            'acts' => MedicalAct::query()->where('is_active', true)->orderBy('label')->get(),
             'insurers' => $insurers,
             'selectedInsurer' => $selectedInsurer,
             'beneficiaries' => $beneficiaries,
@@ -147,6 +149,41 @@ final class AuthorizationRequestController extends Controller
         ]);
 
         return view('facility.requests.show', ['authorizationRequest' => $authorizationRequest]);
+    }
+
+    public function edit(AuthorizationRequest $authorizationRequest): View
+    {
+        Gate::authorize('editDraft', $authorizationRequest);
+        $authorizationRequest->load('items.medicalAct');
+        $existingActIds = $authorizationRequest->items->pluck('medical_act_id');
+
+        return view('facility.requests.edit', [
+            'authorizationRequest' => $authorizationRequest,
+            'acts' => MedicalAct::query()
+                ->where(fn (Builder $query) => $query->where('is_active', true)->orWhereIn('id', $existingActIds))
+                ->orderBy('label')
+                ->get(),
+        ]);
+    }
+
+    public function update(
+        UpdateAuthorizationRequestRequest $request,
+        AuthorizationRequest $authorizationRequest,
+        UpdateAuthorizationRequest $update,
+    ): RedirectResponse {
+        Gate::authorize('editDraft', $authorizationRequest);
+
+        try {
+            $update->handle($request->user(), $authorizationRequest, $request->acts());
+        } catch (CannotCreateRequest $exception) {
+            return back()->withInput()->withErrors(['request' => $exception->getMessage()]);
+        } catch (InvalidStatusTransition) {
+            return back()->withErrors(['request' => 'Seul un brouillon peut être modifié.']);
+        }
+
+        return redirect()
+            ->route('facility.requests.show', $authorizationRequest)
+            ->with('status', 'Le brouillon a été mis à jour.');
     }
 
     public function submit(

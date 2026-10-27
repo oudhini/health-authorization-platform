@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\FacilityInsurerController;
-use App\Http\Controllers\CoverageRosterController;
+use App\Http\Controllers\Admin\MedicalCatalogController;
+use App\Http\Controllers\Admin\OrganizationController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AuthorizationController;
+use App\Http\Controllers\CoverageRosterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Facility\AuthorizationRequestController as FacilityRequestController;
@@ -21,7 +24,7 @@ Route::middleware('guest')->group(function (): void {
         ->name('login.store');
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'active'])->group(function (): void {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
@@ -30,7 +33,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/authorizations/{authorization}', [AuthorizationController::class, 'show'])->name('authorizations.show');
 });
 
-Route::middleware(['auth', 'role:facility_agent'])
+Route::middleware(['auth', 'active', 'role:facility_agent'])
     ->prefix('facility')
     ->name('facility.')
     ->group(function (): void {
@@ -42,12 +45,14 @@ Route::middleware(['auth', 'role:facility_agent'])
             ->middleware('throttle:requests')
             ->name('requests.store');
         Route::get('/requests/{authorizationRequest}', [FacilityRequestController::class, 'show'])->name('requests.show');
+        Route::get('/requests/{authorizationRequest}/edit', [FacilityRequestController::class, 'edit'])->name('requests.edit');
+        Route::put('/requests/{authorizationRequest}', [FacilityRequestController::class, 'update'])->name('requests.update');
         Route::post('/requests/{authorizationRequest}/submit', [FacilityRequestController::class, 'submit'])->name('requests.submit');
         Route::post('/requests/{authorizationRequest}/cancel', [FacilityRequestController::class, 'cancel'])->name('requests.cancel');
         Route::post('/requests/{authorizationRequest}/documents', [DocumentController::class, 'store'])->name('documents.store');
     });
 
-Route::middleware(['auth', 'role:insurer_manager'])
+Route::middleware(['auth', 'active', 'role:insurer_manager'])
     ->prefix('insurer')
     ->name('insurer.')
     ->group(function (): void {
@@ -56,10 +61,10 @@ Route::middleware(['auth', 'role:insurer_manager'])
         Route::post('/requests/{authorizationRequest}/approve', [InsurerRequestController::class, 'approve'])->name('requests.approve');
         Route::post('/requests/{authorizationRequest}/reject', [InsurerRequestController::class, 'reject'])->name('requests.reject');
         Route::post('/requests/{authorizationRequest}/request-information', [InsurerRequestController::class, 'requestInformation'])
-        ->name('requests.request-information');
+            ->name('requests.request-information');
     });
 
-Route::middleware(['auth', 'role:platform_admin'])
+Route::middleware(['auth', 'active', 'role:platform_admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function (): void {
@@ -67,9 +72,23 @@ Route::middleware(['auth', 'role:platform_admin'])
         Route::get('/facility-insurers', [FacilityInsurerController::class, 'index'])->name('facility-insurers.index');
         Route::put('/facility-insurers/{facility}', [FacilityInsurerController::class, 'update'])
             ->name('facility-insurers.update');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::get('/organizations', [OrganizationController::class, 'index'])->name('organizations.index');
+        Route::post('/organizations', [OrganizationController::class, 'store'])->name('organizations.store');
+        Route::put('/organizations/{organization}', [OrganizationController::class, 'update'])
+            ->name('organizations.update');
+        Route::get('/medical-catalog', [MedicalCatalogController::class, 'index'])->name('medical-catalog.index');
+        Route::post('/medical-catalog', [MedicalCatalogController::class, 'store'])->name('medical-catalog.store');
+        Route::put('/medical-catalog/{medicalAct}', [MedicalCatalogController::class, 'update'])->name('medical-catalog.update');
+        Route::post('/medical-catalog/{medicalAct}/tariffs', [MedicalCatalogController::class, 'storeTariff'])
+            ->name('medical-catalog.tariffs.store');
     });
 
-Route::middleware(['auth', 'can:manage-coverage-roster'])
+Route::middleware(['auth', 'active', 'can:manage-coverage-roster'])
     ->prefix('coverage-roster')
     ->name('coverage-roster.')
     ->group(function (): void {

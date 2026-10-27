@@ -18,6 +18,13 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
   administrateurs peuvent intervenir par exception. Import CSV avec aperçu,
   validation complète, confirmation du même fichier, limite de taille/lignes
   et journalisation sans données personnelles en métadonnées.
+- Administration plateforme : création/renommage d'organisations, création et
+  mise à jour des comptes, attribution des rôles et organisations cohérents,
+  désactivation avec fin de session et journalisation.
+- Catalogue commun d'actes médicaux : création, renommage/désactivation des
+  actes, ajout de tarifs datés sans écraser les tarifs antérieurs.
+- Un agent peut modifier les lignes de ses propres brouillons; les montants
+  sont recalculés avec le tarif courant et le taux copié à la création.
 - L'approbation génère un bon imprimable dont les montants sont copiés et
   conservés, avec dates de validité.
 - Journalisation des actions métier et accès aux documents autorisés.
@@ -28,7 +35,8 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
 
 ## Vérifications exécutées
 
-- `& 'C:\php84\php.exe' artisan test` : 168 tests réussis, 1 995 assertions.
+- `& 'C:\php84\php.exe' artisan test` : 186 tests réussis, 2 086 assertions
+  sur SQLite en mémoire.
 - `npm run build` : compilation Vite réussie.
 - Les vues intégrées dans les deux portails n'utilisent pas de `<style>` ni
   d'attribut `style=`.
@@ -73,9 +81,28 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
   l'essai : toutes les migrations y ont été exécutées et les 168 tests
   (1 995 assertions) ont réussi sur MariaDB 10.4.32. Cette base de test a reçu
   uniquement les données fictives des seeders.
+- Le 2026-10-27, une base temporaire dédiée a reçu les 19 migrations, y
+  compris celle de gestion des comptes et des actes; les 186 tests (2 086
+  assertions) ont réussi sur MariaDB 10.4.32. La base temporaire a ensuite été
+  supprimée. La base locale principale reste intacte; cette migration y est
+  encore en attente.
 - Le serveur Laravel temporaire, relié uniquement à cette base de test, a
   répondu HTTP 200 sur l'accueil et la connexion. Il a ensuite été arrêté.
 - La validation MariaDB ne remplace pas un essai sur MySQL 8 chez l'hébergeur.
+- Nouveaux tests du 2026-10-27 : gestion des comptes, organisations, catalogue
+  et tarifs, désactivation de compte, protection des rôles, édition limitée
+  aux brouillons du créateur et recalcul des lignes. Ils portent la suite à
+  186 tests et 2 086 assertions.
+
+## Préparation avant le retravail visuel du front
+
+Le socle fonctionnel du MVP est maintenant couvert pour les rôles,
+organisations, demandes, pièces, décisions, bons, portefeuille, catalogue et
+tarifs. Le retravail visuel du front n'a pas commencé. Le contrat CSV, les
+règles de calcul et les pièces exigées restent des hypothèses produit à
+confronter aux acteurs; cela n'empêche pas de les tester avec les données
+fictives actuelles, mais interdit de les présenter comme des règles métier
+validées.
 
 ## À faire avant toute utilisation réelle ou commerciale
 

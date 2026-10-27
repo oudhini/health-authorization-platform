@@ -99,13 +99,15 @@ ne voit que les données de son organisation et celles qui lui sont adressées.
 - Les documents sont stockés hors du dossier public, avec un accès contrôlé.
 - Les données de démonstration sont entièrement fictives.
 - Les gestionnaires d'un assureur maintiennent les souscripteurs, assurés principaux, bénéficiaires et polices de leur propre assureur. L'administrateur plateforme peut intervenir pour une correction exceptionnelle.
+- L'administrateur plateforme crée les organisations et comptes, rattache les comptes au type d'organisation correspondant à leur rôle et peut désactiver un compte. Les suppressions d'organisations/comptes sont évitées pour préserver les demandes et le journal d'audit.
+- Le catalogue d'actes est commun au prototype. L'administrateur plateforme crée et désactive les actes, et ajoute des tarifs datés; les tarifs enregistrés ne sont pas écrasés. Les lignes déjà enregistrées sur une demande gardent leurs montants copiés.
 - L'alimentation du portefeuille doit permettre un import CSV avec prévisualisation et rapport d'erreurs, ainsi que des corrections manuelles. Le modèle de colonnes sera provisoire tant qu'il n'aura pas été confronté à un format d'assureur anonymisé ou fictif.
 - Le modèle CSV provisoire, ses limites et son comportement d'import sont décrits dans `docs/coverage-roster-csv.md`.
 - Aucun import ni écran de gestion ne doit être utilisé avec des données personnelles réelles avant les validations de sécurité, confidentialité, conformité et exploitation requises pour un pilote.
 
 ### 4.4 Questions ouvertes
 
-- Faut-il séparer le catalogue d'actes de chaque assureur, ou un catalogue commun ?
+- Faut-il séparer le catalogue d'actes de chaque assureur, ou un catalogue commun ? Décision MVP du 2026-10-27 : catalogue commun pour le prototype; à revisiter après comparaison de contrats fictifs.
 - Un bénéficiaire peut-il être couvert par plusieurs polices ?
 - Le lien de parenté est-il nécessaire pour les règles de calcul, ou seulement informatif ?
 
@@ -127,6 +129,7 @@ ne voit que les données de son organisation et celles qui lui sont adressées.
 | De | Vers | Qui | Conditions | Effets |
 |---|---|---|---|---|
 | `draft` | `submitted` | `facility_agent` | Au moins une ligne ; bénéficiaire couvert par une police active ; documents obligatoires joints | Écriture dans le journal d'audit |
+| `draft` | `draft` | Créateur de la demande (`facility_agent`) | La demande appartient à son établissement; le créateur seul peut modifier les lignes | Recalcul des tarifs et montants, écriture dans le journal d'audit |
 | `submitted` | `approved` | `insurer_manager` | Demande adressée à son assureur | Génère le bon (numéro, validité, montants calculés) |
 | `submitted` | `rejected` | `insurer_manager` | Motif obligatoire | Journal d'audit |
 | `submitted` | `info_requested` | `insurer_manager` | Message obligatoire | Journal d'audit |
@@ -363,9 +366,9 @@ Légende : **Terrain** = à demander à une personne qui connaît le processus ;
 | 6 | Un état `under_review` est-il utile ? | 5.5 | Décision | Phase 2 |
 | 7 | Annulation possible d'une demande envoyée ? | 5.5 | Décision | Phase 2 |
 | 8 | Demande refusée : rouvrir ou en recréer une ? | 5.5 | Terrain | Phase 2 |
-| 9 | Catalogue d'actes commun ou propre à chaque assureur ? | 4.4 | Décision | Phase 1 |
+| 9 | Catalogue d'actes commun ou propre à chaque assureur ? | 4.4 | Décision MVP : commun; à réviser selon les retours | Phase 1 |
 | 10 | Un bénéficiaire peut-il avoir plusieurs polices ? | 4.4 | Terrain | Phase 2 |
-| 11 | Qui gère polices et tarifs : administrateur plateforme ou assureur ? | Rôles | Décision | Phase 2 |
+| 11 | Qui gère polices et tarifs : administrateur plateforme ou assureur ? | Rôles | Décision MVP : le gestionnaire assureur gère son portefeuille et ses polices; l'administrateur plateforme gère le catalogue commun et les tarifs datés. À valider avec les acteurs avant usage réel. | Phase 2 |
 | 12 | Cadre légal camerounais sur les données de santé et personnelles | 8.4 | Recherche | Avant mise en ligne |
 | 13 | Circuit des médicaments côté pharmacie | Document de départ | Terrain | Hors MVP |
 | 14 | Hébergeur de démonstration et base de données (ADR 0002) | ADR 0001 | Décision | Avant le déploiement public |

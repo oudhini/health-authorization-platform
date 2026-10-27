@@ -31,11 +31,10 @@ final class CreateAuthorizationRequest
     public function __construct(
         private readonly CoverageCalculator $calculator,
         private readonly AuditLogger $audit,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param list<array{medical_act_id: int, billed_amount: int}> $acts
+     * @param  list<array{medical_act_id: int, billed_amount: int}>  $acts
      *
      * @throws CannotCreateRequest
      */
@@ -90,6 +89,10 @@ final class CreateAuthorizationRequest
             ]);
 
             foreach ($acts as $act) {
+                if (! MedicalAct::query()->whereKey($act['medical_act_id'])->where('is_active', true)->exists()) {
+                    throw CannotCreateRequest::inactiveMedicalAct();
+                }
+
                 $tariff = OfficialTariff::amountFor($act['medical_act_id'], $today)
                     ?? throw CannotCreateRequest::missingTariff($this->actLabel($act['medical_act_id']));
 

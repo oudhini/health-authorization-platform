@@ -45,6 +45,15 @@
                             @endif
                             @if (auth()->user()->role === \App\Enums\UserRole::PlatformAdmin)
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.users.index') }}">Comptes</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.organizations.index') }}">Organisations</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.medical-catalog.index') }}">Actes et tarifs</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('admin.audit-logs.index') }}">Journal d'audit</a>
                                 </li>
                                 <li class="nav-item">

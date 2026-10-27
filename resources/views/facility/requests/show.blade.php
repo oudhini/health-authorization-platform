@@ -11,6 +11,14 @@
         @include('partials.status-badge', ['status' => $authorizationRequest->status])
     </div>
 
+    @if ($authorizationRequest->status === RequestStatus::Draft
+        && (int) $authorizationRequest->created_by === (int) auth()->id()
+        && auth()->user()->role === \App\Enums\UserRole::FacilityAgent)
+        <a class="btn btn-outline-primary mb-3 no-print" href="{{ route('facility.requests.edit', $authorizationRequest) }}">
+            Modifier le brouillon
+        </a>
+    @endif
+
     @if ($authorizationRequest->decision_note)
         <div class="alert {{ $authorizationRequest->status === RequestStatus::Rejected ? 'alert-danger' : 'alert-warning' }}" role="note">
             <strong>Message de l'assureur :</strong> {{ $authorizationRequest->decision_note }}

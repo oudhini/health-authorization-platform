@@ -25,4 +25,13 @@ enum AuditAction: string
     case CoverageRecordCreated = 'coverage_record.created';
     case CoverageRecordUpdated = 'coverage_record.updated';
     case CoverageRosterImported = 'coverage_roster.imported';
+    case RequestUpdated = 'request.updated';
+    case UserCreated = 'user.created';
+    case UserUpdated = 'user.updated';
+    case InactiveAccountSessionEnded = 'auth.inactive_session_ended';
+    case MedicalActCreated = 'medical_act.created';
+    case MedicalActUpdated = 'medical_act.updated';
+    case OfficialTariffCreated = 'official_tariff.created';
+    case OrganizationCreated = 'organization.created';
+    case OrganizationRenamed = 'organization.renamed';
 }

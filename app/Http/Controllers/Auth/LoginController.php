@@ -26,7 +26,7 @@ final class LoginController extends Controller
     {
         $credentials = $request->validated();
 
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials + ['is_active' => true])) {
             $audit->record(AuditAction::LoginFailed, null, null, ['email' => Str::lower($credentials['email'])]);
 
             // One generic message: never reveal whether the e-mail exists.

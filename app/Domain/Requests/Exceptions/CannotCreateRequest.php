@@ -24,6 +24,11 @@ final class CannotCreateRequest extends DomainException
         return new self('La couverture sélectionnée n’est plus valide. Recherchez à nouveau le bénéficiaire.');
     }
 
+    public static function inactiveMedicalAct(): self
+    {
+        return new self('Un acte sélectionné n’est plus disponible dans le catalogue.');
+    }
+
     public static function missingTariff(string $actLabel): self
     {
         return new self("Aucun tarif officiel n'est défini pour l'acte « {$actLabel} ».");

@@ -23,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('manage-facility-insurers', fn (User $user): bool => $user->role === UserRole::PlatformAdmin);
+        Gate::define('manage-users', fn (User $user): bool => $user->role === UserRole::PlatformAdmin);
+        Gate::define('manage-medical-catalog', fn (User $user): bool => $user->role === UserRole::PlatformAdmin);
         Gate::define('manage-coverage-roster', fn (User $user): bool => in_array(
             $user->role,
             [UserRole::InsurerManager, UserRole::PlatformAdmin],
