@@ -22,8 +22,9 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
   conservés, avec dates de validité.
 - Journalisation des actions métier et accès aux documents autorisés.
 - Interface Blade rendue côté serveur, Bootstrap intégré via Vite.
-- MySQL retenu pour le développement; les tests automatisés s'exécutent sur
-  SQLite en mémoire et ne valident donc pas à eux seuls le comportement MySQL.
+- Le pilote Laravel `mysql` est utilisé avec MariaDB 10.4.32 sous XAMPP en
+  local. La base cible MySQL 8 n'est pas encore vérifiée; les tests habituels
+  restent configurés sur SQLite en mémoire.
 
 ## Vérifications exécutées
 
@@ -31,10 +32,10 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
 - `npm run build` : compilation Vite réussie.
 - Les vues intégrées dans les deux portails n'utilisent pas de `<style>` ni
   d'attribut `style=`.
-- La migration initiale MySQL et le seeding ont été exécutés dans une étape
-  précédente; la migration des partenariats établissement-assureur a ensuite
-  été appliquée et le seeder ciblé a ajouté les quatre partenariats fictifs.
-- Le parcours MySQL a été vérifié dans le navigateur par recherche d'un numéro
+- La migration initiale et le seeding ont été exécutés sur la base locale;
+  la migration des partenariats établissement-assureur a ensuite été
+  appliquée et le seeder ciblé a ajouté les quatre partenariats fictifs.
+- Le parcours MariaDB a été vérifié dans le navigateur par recherche d'un numéro
   de bénéficiaire, sélection de la police et création d'un brouillon; la
   recherche du même numéro sous un assureur qui ne le couvre pas ne renvoie
   aucun résultat. La demande de test a ensuite été envoyée, approuvée avec le
@@ -47,13 +48,13 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
 - L'aller-retour « informations demandées → réponse par message et/ou nouveau
   document → retransmission » est désormais conservé dans l'historique de la
   demande; la retransmission sans complément est refusée. La migration additive
-  a été appliquée à MySQL local et les demandes déjà en attente d'informations
-  ont été ajoutées à l'historique.
+  a été appliquée à la base MariaDB locale et les demandes déjà en attente
+  d'informations ont été ajoutées à l'historique.
 - Les tests automatisés couvrent maintenant la création et l'approbation d'un
   examen lié, son bon imprimable, l'exigence de la fiche médicale et le rejet
   d'un lien vers une consultation d'un autre bénéficiaire. Ces nouveaux tests
-  tournent sur SQLite en mémoire; le parcours d'examen n'a pas encore été
-  rejoué manuellement sur MySQL.
+  tournent habituellement sur SQLite en mémoire; la suite complète a aussi
+  été exécutée sur une base MariaDB de test dédiée.
 - Le gestionnaire assureur peut créer/corriger manuellement un dossier et
   prévisualiser puis confirmer un import CSV; les nouveaux bénéficiaires
   deviennent recherchables par un agent dans le contexte de l'assureur choisi.
@@ -62,12 +63,19 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
   différent après aperçu. Le contrat CSV reste provisoire.
 - Une migration additive ajoute l'assureur directement au bénéficiaire et
   rend les numéros de bénéficiaire et de contrat uniques par assureur (et non
-  globalement). Elle a été exercée par la suite de tests SQLite; elle n'a pas
-  été appliquée à la base MySQL locale dans cette étape.
-- Le 2026-10-27, la vérification du statut des migrations MySQL a échoué car
-  aucun serveur n'écoutait sur `127.0.0.1:3306`. Aucune sauvegarde ni migration
-  n'a été exécutée; cette validation reste à refaire après démarrage contrôlé
-  de MySQL.
+  globalement). Elle a été appliquée à la base locale et exercée par les tests
+  SQLite et MariaDB.
+- Le 2026-10-27, après le démarrage contrôlé de MariaDB local, le statut a
+  confirmé que les 18 migrations sont appliquées. Une sauvegarde de la base a
+  été créée dans le dossier temporaire Windows, hors du dépôt, avant toute
+  autre opération.
+- Une base séparée `health_authorization_platform_test` a été créée pour
+  l'essai : toutes les migrations y ont été exécutées et les 168 tests
+  (1 995 assertions) ont réussi sur MariaDB 10.4.32. Cette base de test a reçu
+  uniquement les données fictives des seeders.
+- Le serveur Laravel temporaire, relié uniquement à cette base de test, a
+  répondu HTTP 200 sur l'accueil et la connexion. Il a ensuite été arrêté.
+- La validation MariaDB ne remplace pas un essai sur MySQL 8 chez l'hébergeur.
 
 ## À faire avant toute utilisation réelle ou commerciale
 
@@ -77,7 +85,7 @@ les parcours présents des étapes qui restent à valider ou à réaliser.
 - Revoir la sécurité, la confidentialité, les obligations réglementaires et
   contractuelles avec des personnes compétentes avant toute donnée réelle.
 - Compléter les tests et validations avec la version MySQL réellement ciblée
-  avant un déploiement.
+  avant un déploiement; l'essai actuel porte sur MariaDB 10.4.32.
 - Déploiement public, CI, revue du dépôt et vidéo de présentation non réalisés.
 
 ## Revue de sécurité ciblée
