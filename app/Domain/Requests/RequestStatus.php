@@ -11,7 +11,7 @@ use App\Domain\Requests\Exceptions\InvalidStatusTransition;
  *
  * This enum only answers "is this status change possible?". Who is allowed to
  * trigger it (facility_agent or insurer_manager) is an authorization concern,
- * handled later by Laravel policies, not here.
+ * handled by Laravel policies, not here.
  */
 enum RequestStatus: string
 {
@@ -53,5 +53,17 @@ enum RequestStatus: string
         }
 
         return $target;
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Draft => 'Brouillon',
+            self::Submitted => 'Envoyée',
+            self::InfoRequested => 'Informations demandées',
+            self::Approved => 'Approuvée',
+            self::Rejected => 'Refusée',
+            self::Cancelled => 'Annulée',
+        };
     }
 }

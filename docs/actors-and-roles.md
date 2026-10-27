@@ -33,7 +33,9 @@ le patient ou son accompagnant, le médecin, la caisse de l'hôpital.
 | Télécharger le bon en PDF | Oui (son établissement) | Oui (son assureur) | Non |
 | Consulter le journal d'audit | Non | Non | Oui |
 | Gérer les comptes utilisateurs | Non | Non | Oui |
-| Gérer polices, taux et tarifs | Non | Non | Oui |
+| Gérer souscripteurs, assurés, bénéficiaires et polices de son assureur | Non | Oui | Oui (correction exceptionnelle) |
+| Gérer le catalogue d'actes et les tarifs | Non | Non | Oui |
+| Configurer les assureurs partenaires d'un établissement | Non | Non | Oui |
 
 ## 4. Règles de sécurité sur les rôles
 
@@ -48,4 +50,4 @@ le patient ou son accompagnant, le médecin, la caisse de l'hôpital.
 - Le médecin-conseil est-il un rôle séparé de `insurer_manager`, ou la même personne ? (hors MVP pour l'instant)
 - Plusieurs établissements peuvent-ils partager un même assureur dans la démo ?
 - Le patient doit-il avoir un accès en lecture à son propre bon ? (hors MVP)
-- Qui gère les polices et les tarifs : l'administrateur de la plateforme ou l'assureur ?
+- Qui est autorisé à gérer le catalogue d'actes et les tarifs, et selon quelle source ?

@@ -1,72 +1,92 @@
 # Feuille de route
 
-Règles de travail, valables pour toutes les phases :
+L'objectif est de faire évoluer le prototype existant vers un produit qui
+réponde à un problème opérationnel réel. Le code qui fonctionne avec des
+données fictives est une base, pas une preuve suffisante de l'adéquation métier
+ni de l'aptitude à traiter de vraies données.
 
-1. **Les tests avant le code** pour la logique métier.
-2. **Un changement de comportement passe par le document avant le code** : si
-   tu veux ajouter un statut, une règle ou un écran, mets d'abord
-   `docs/requirements.md` à jour (ou note l'idée dans « Idées pour plus tard »).
-3. **Un commit = une intention**, au format Conventional Commits, en anglais.
-4. Aucun secret, aucune donnée réelle dans le dépôt.
-5. Avant chaque `git push` : `php artisan test` doit passer.
+## Règles de travail
 
-## Phase 1 : cœur métier (le pack fourni couvre cette phase)
+1. Valider les règles métier avec les personnes concernées avant de les
+   présenter comme universelles ou de les automatiser.
+2. Un changement de comportement est d'abord décrit dans
+   `docs/requirements.md`, puis codé et testé.
+3. Un commit correspond à une intention et suit Conventional Commits, en
+   anglais.
+4. Aucune donnée réelle ni aucun secret dans le dépôt ou dans les tests.
+5. Avant chaque push, les tests doivent passer.
 
-| # | Tâche | Fait quand |
-|---|---|---|
-| 1.1 | Squelette Laravel commité, tests d'exemple verts | `php artisan test` passe |
-| 1.2 | Calculateur de couverture et ses tests | Les 5 cas A à E passent |
-| 1.3 | Cycle de vie des demandes et ses tests | Les 7 transitions autorisées passent, les 29 autres sont refusées |
-| 1.4 | ADR 0001 relu et passé à « accepté » | Statut modifié et commité |
-| 1.5 | Entretien terrain (`docs/field-questions.md`) | Réponses Q1, Q2, Q3, Q4 notées, section 6 mise à jour si besoin |
-| 1.6 | Recherche d'hébergeur (`docs/hosting-checklist.md`) puis ADR 0002 | ADR 0002 « accepté » |
+## État de départ vérifié
 
-## Phase 2 : base de données et accès
+- Le prototype gère le parcours simulé de demande de prise en charge :
+  sélection d'un assureur partenaire, recherche d'un bénéficiaire, choix d'une
+  police, calcul, documents, transmission, décision et bon imprimable.
+- Les demandes d'informations et les réponses de l'établissement (message,
+  nouveau document ou les deux) sont conservées dans l'historique du dossier.
+- Les tests automatisés passent sur SQLite en mémoire; un scénario
+  établissement-assureur a aussi été parcouru sur MySQL local.
+- Il n'y a pas d'intégration à un assureur ou établissement réel, ni de
+  validation multi-acteurs documentée du workflow.
+- Claims et facturation sont reportés à la V2. Le circuit des médicaments
+  reste hors du premier workflow.
 
-| # | Tâche | Fait quand |
-|---|---|---|
-| 2.1 | ADR 0003 sur l'authentification (kits officiels de Laravel ou solution maison). **Vérifie dans la documentation officielle de Laravel 13 ce qui est proposé aujourd'hui** : je ne l'ai pas pu consulter. | ADR écrit |
-| 2.2 | Migrations des entités de la section 4, dans l'ordre des dépendances : `organizations`, `users` (ajout du rôle et de l'organisation), `subscribers`, `policyholders`, `beneficiaries`, `policies`, `medical_acts`, `official_tariffs`, `authorization_requests`, `authorization_items`, `authorizations`, `documents`, `audit_logs` | `php artisan migrate:fresh` réussit, et `php artisan migrate:rollback` aussi |
-| 2.3 | Contraintes en base : clés étrangères, montants entiers positifs, statut limité aux valeurs de `RequestStatus`, index justifiés par une requête réelle | Revue de chaque migration |
-| 2.4 | Modèles Eloquent avec le cast du statut vers `RequestStatus` | Un test crée une demande et relit son statut |
-| 2.5 | Seeders de **données entièrement fictives** : 1 établissement, 1 assureur, comptes de démonstration, quelques bénéficiaires, polices, actes et tarifs | `php artisan migrate:fresh --seed` donne une démo utilisable |
-| 2.6 | Politiques d'autorisation (`php artisan make:policy`) pour chaque règle de `docs/actors-and-roles.md` | Un test par ligne du tableau des droits |
-| 2.7 | Test d'isolation entre organisations | Un `facility_agent` ne lit jamais la demande d'un autre établissement, même avec l'identifiant |
-| 2.8 | Authentification et rôles | Connexion, déconnexion, limitation des tentatives, tests |
-
-Commandes utiles (stables dans Laravel) : `php artisan make:migration`,
-`make:model Nom -m`, `make:policy`, `make:seeder`, `make:test`, `route:list`.
-
-## Phase 3 : parcours complets
+## Phase 1 : valider le problème et le workflow
 
 | # | Tâche | Fait quand |
 |---|---|---|
-| 3.1 | Action « envoyer une demande » : vérifie les conditions de la section 5.2 puis utilise `RequestStatus::transitionTo` | Tests : succès et chaque refus (aucune ligne, police inactive, document manquant) |
-| 3.2 | Action « décider » (approuver, refuser, demander des informations) | Tests par rôle |
-| 3.3 | Création de la demande avec lignes d'actes ; calcul via `CoverageCalculator` à partir du tarif officiel **copié** sur la ligne | Les montants de la ligne correspondent aux cas de référence |
-| 3.4 | Génération du bon à l'approbation (numéro, validité de 7 jours, dates stockées) | Test : un bon approuvé n'est plus modifiable |
-| 3.5 | Dépôt et téléchargement sécurisés de documents (section 8.2) | Tests : type, taille, accès refusé à un autre établissement |
-| 3.6 | PDF du bon. **Choisis une bibliothèque en vérifiant qu'elle est maintenue et compatible avec Laravel 13**, et consigne le choix dans un ADR | PDF aux montants corrects |
-| 3.7 | Journal d'audit (section 8.3) | Chaque action listée écrit une entrée |
-| 3.8 | Écrans : liste, détail, formulaire, états de chargement, vide et erreur, affichage mobile | Parcours manuel complet des deux workflows |
+| 1.1 | Distinguer les faits observés, les hypothèses et les décisions produit dans les exigences | Les règles non confirmées sont clairement signalées |
+| 1.2 | Recueillir des retours sans données patients auprès d'agents d'établissement | Les étapes, irritants, pièces et exceptions sont documentés |
+| 1.3 | Recueillir si possible le point de vue d'un gestionnaire d'assureur | La réception, l'instruction et la décision sont comprises des deux côtés |
+| 1.4 | Confirmer les règles financières et documents exigés par type de demande | Les exemples et cas limites sont écrits et vérifiables |
+| 1.5 | Définir des indicateurs de valeur : complétude au premier envoi, relances, temps de préparation et de décision | Méthode de mesure définie; aucune amélioration n'est revendiquée sans mesure |
 
-## Phase 4 : qualité et mise en ligne
+## Phase 2 : fermer les écarts du workflow V1
 
 | # | Tâche | Fait quand |
 |---|---|---|
-| 4.1 | Intégration continue (`optional/.github/workflows/ci.yml` du pack) | Coche verte sur GitHub |
-| 4.2 | Formateur et analyse statique, intégrés à la CI | Aucune erreur |
-| 4.3 | Déploiement selon l'ADR 0002 ; HTTPS ; variables d'environnement | URL publique avec comptes de démonstration |
-| 4.4 | README final : présentation, capture d'écran, comment lancer, comment tester, liens vers `docs/` | Un inconnu peut lancer le projet seul |
-| 4.5 | Dépôt passé en public, après relecture : aucune donnée réelle, aucun secret, historique propre | Relecture faite |
-| 4.6 | Vidéo de démonstration de 3 à 5 minutes | Fichier ou lien |
-| 4.7 | Critères de la section 9 de `docs/requirements.md` cochés un par un | 12 sur 12 |
+| 2.1 | Comparer chaque étape confirmée au prototype et ajuster le cahier des charges | Chaque exigence est liée à une fonction ou à un travail restant |
+| 2.2 | Compléter le parcours consultation de bout en bout | Tests et parcours manuel couvrent création, pièces, envoi, décision et bon |
+| 2.3 | Compléter le parcours examen lié à la consultation | Les règles de liaison et justificatifs sont confirmés et testés |
+| 2.4 | Vérifier les règles de calcul, tarifs, taux, plafonds, franchises et arrondis pertinents | Chaque règle implémentée a une source ou est explicitement paramétrable |
+| 2.5 | Vérifier les états d'erreur, de demande d'informations, de refus et de reprise | Les utilisateurs savent quoi faire ensuite à chaque état |
+| 2.6 | Définir qui maintient les bénéficiaires, contrats, taux et tarifs dans le système | Responsabilités et autorisations documentées |
+| 2.7 | Gérer le portefeuille assuré par assureur, avec import CSV contrôlé et corrections manuelles | Cloisonnement et règles d'import testés; format provisoire confronté à des exemples fictifs |
 
-## Idées pour plus tard (hors MVP)
+Claims, facturation, règlement et médicaments ne font pas partie de cette
+phase. Ils seront réévalués après validation du workflow principal.
 
-Écris ici toute idée qui change le comportement du système, sans la coder.
+## Phase 3 : préparer un pilote contrôlé
 
-- Claims et facturation.
-- Circuit des médicaments.
+| # | Tâche | Fait quand |
+|---|---|---|
+| 3.1 | Revue de sécurité couvrant authentification, autorisations, isolation, documents et audit | Findings priorisés, corrigés ou acceptés avec justification |
+| 3.2 | Définir les comptes, rôles, récupération d'accès et protections adaptées aux organisations utilisatrices | Parcours d'administration et d'assistance testé |
+| 3.3 | Vérifier le cadre local de protection des données et les responsabilités contractuelles avec des personnes compétentes | Exigences documentées avant tout traitement réel |
+| 3.4 | Choisir hébergement, base, HTTPS, stockage privé, sauvegardes, restauration et supervision | ADR 0002 et checklist complétés; restauration testée |
+| 3.5 | Tester migrations et parcours automatisés sur le moteur de base retenu | CI et tests MySQL/PostgreSQL ciblés passent |
+| 3.6 | Définir conservation, export, suppression et réponse aux incidents | Procédures écrites et testées |
+| 3.7 | Effectuer un pilote limité, autorisé et accompagné avant généralisation | Critères d'arrêt, responsables et retours du pilote établis |
+
+Ne pas utiliser de données réelles avant que les validations applicables à ce
+pilote aient été obtenues.
+
+## Phase 4 : livrer le produit et le présenter
+
+| # | Tâche | Fait quand |
+|---|---|---|
+| 4.1 | Intégration continue, analyse statique et formatage | Vérifications automatisées passent à chaque changement |
+| 4.2 | Déployer un environnement de démonstration avec données fictives | URL HTTPS, comptes de démo et procédure de réinitialisation vérifiés |
+| 4.3 | Terminer README et documentation d'exploitation | Une autre personne peut installer, tester et comprendre les limites |
+| 4.4 | Relire le dépôt avant publication | Aucun secret, aucune donnée réelle, historique et licence vérifiés |
+| 4.5 | Enregistrer une démonstration de 3 à 5 minutes | Les deux parcours principaux sont montrés sans données réelles |
+
+## V2 et idées ultérieures
+
+- Claims, facturation et suivi de règlement.
+- Circuit de validation des médicaments en pharmacie.
+- Intégrations API avec des assureurs ou établissements, seulement si un besoin
+  et un partenaire les justifient.
 - Correction d'un bon approuvé par nouvelle version.
-- Accès en lecture du patient à son bon.
+- Accès du patient à son propre bon.
+- API publique et éventuelle interface séparée, si des consommateurs réels le
+  nécessitent.

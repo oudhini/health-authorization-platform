@@ -24,10 +24,8 @@ final class CoverageCalculatorTest extends TestCase
     }
 
     /**
-     * Reference cases A to E of section 6.4.
-     * Cases A, D and E rest on assumptions still open in section 10
-     * (questions 1 and 2). If the field answers differ, change the case here
-     * and in the requirements together.
+     * Reference cases A to F of section 6.4.
+     * Contract-specific rules must still be confirmed before a real pilot.
      *
      * @return array<string, array{int, int, int, int, int, int, int}>
      */
@@ -40,6 +38,7 @@ final class CoverageCalculatorTest extends TestCase
             'C. overrun at 100%' => [12000, 10000, 100, 10000, 10000, 2000, 2000],
             'D. 80%, no overrun' => [10000, 10000, 80, 10000, 8000, 2000, 0],
             'E. 80%, with overrun' => [12000, 10000, 80, 10000, 8000, 4000, 2000],
+            'F. 80%, facility cheaper than tariff' => [8000, 10000, 80, 8000, 6400, 1600, 0],
         ];
     }
 
