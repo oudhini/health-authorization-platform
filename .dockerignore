@@ -1,0 +1,13 @@
+.git
+.github
+.vscode
+node_modules
+npm-debug.log
+storage/logs/*.log
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/cache/*
+.env
+.env.*
+.phpunit.result.cache
+.local-db-backup.php
