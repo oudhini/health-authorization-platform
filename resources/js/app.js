@@ -1,4 +1,6 @@
 import 'bootstrap/js/dist/collapse';
+import 'bootstrap/js/dist/dropdown';
+import 'bootstrap/js/dist/alert';
 
 const coverageSelect = document.querySelector('#coverage_selection');
 const relatedRequestSelect = document.querySelector('#related_request_id');

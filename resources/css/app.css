@@ -1,33 +1,573 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+    --hap-primary: #0f4c81;
+    --hap-primary-hover: #0b3961;
+    --hap-primary-light: #e8f1f8;
+    --hap-primary-subtle: #f0f6fa;
+    --hap-teal: #0d9488;
+    --hap-teal-light: #ccfbf1;
+    --hap-teal-subtle: #f0fdfa;
+    --hap-success: #059669;
+    --hap-success-subtle: #ecfdf5;
+    --hap-warning: #d97706;
+    --hap-warning-subtle: #fffbeb;
+    --hap-danger: #dc2626;
+    --hap-danger-subtle: #fef2f2;
+    --hap-slate-900: #0f172a;
+    --hap-slate-800: #1e293b;
+    --hap-slate-700: #334155;
+    --hap-slate-600: #475569;
+    --hap-slate-500: #64748b;
+    --hap-slate-400: #94a3b8;
+    --hap-slate-300: #cbd5e1;
+    --hap-slate-200: #e2e8f0;
+    --hap-slate-100: #f1f5f9;
+    --hap-slate-50: #f8fafc;
+    --hap-radius-sm: 0.5rem;
+    --hap-radius-md: 0.75rem;
+    --hap-radius-lg: 1rem;
+    --hap-radius-xl: 1.25rem;
+    --hap-shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --hap-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --hap-shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --hap-shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+}
 
 body {
-    background-color: #f4f7fb;
+    background-color: #f6f8fb;
+    color: var(--hap-slate-800);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
 }
 
-.navbar-brand {
+/* ==========================================================================
+   Typography & Utilities
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--hap-slate-900);
     font-weight: 700;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.02em;
 }
 
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+.text-slate-muted {
+    color: var(--hap-slate-500) !important;
+}
+
+/* ==========================================================================
+   Header & Navigation
+   ========================================================================== */
+.hap-navbar {
+    background: linear-gradient(135deg, #0f3b60 0%, #0a2540 100%);
+    box-shadow: 0 4px 20px -2px rgba(10, 37, 64, 0.25);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hap-navbar .navbar-brand {
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #ffffff;
+    transition: opacity 0.15s ease;
+}
+
+.hap-navbar .navbar-brand:hover {
+    opacity: 0.95;
+}
+
+.hap-brand-icon {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, #0ea5e9, #0d9488);
+    color: white;
+    border-radius: var(--hap-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 6px rgba(14, 165, 233, 0.35);
+}
+
+.hap-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.82) !important;
+    font-weight: 500;
+    font-size: 0.925rem;
+    padding: 0.55rem 0.85rem !important;
+    border-radius: var(--hap-radius-sm);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.hap-navbar .nav-link:hover,
+.hap-navbar .nav-link.active {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.hap-user-badge {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==========================================================================
+   Cards & Surfaces
+   ========================================================================== */
 .card {
-    border-color: #e3e9f1;
+    background-color: #ffffff;
+    border: 1px solid var(--hap-slate-200);
+    border-radius: var(--hap-radius-lg);
+    box-shadow: var(--hap-shadow-sm);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--hap-slate-200);
+    padding: 1.25rem 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-footer {
+    background-color: var(--hap-slate-50);
+    border-top: 1px solid var(--hap-slate-200);
+    padding: 1rem 1.5rem;
+    border-bottom-left-radius: var(--hap-radius-lg) !important;
+    border-bottom-right-radius: var(--hap-radius-lg) !important;
+}
+
+.card-hover:hover {
+    box-shadow: var(--hap-shadow-md);
+    border-color: var(--hap-slate-300);
+}
+
+.hap-stat-card {
+    background: #ffffff;
+    border: 1px solid var(--hap-slate-200);
+    border-radius: var(--hap-radius-lg);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hap-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hap-shadow-md);
+}
+
+.hap-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--hap-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Buttons & Interactive Elements
+   ========================================================================== */
+.btn {
+    font-weight: 600;
+    font-size: 0.925rem;
+    padding: 0.55rem 1.15rem;
+    border-radius: var(--hap-radius-md);
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, #0f4c81, #0a355c);
+    border-color: #0a355c;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(15, 76, 129, 0.25);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: linear-gradient(145deg, #0c3d68, #082847);
+    border-color: #082847;
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(15, 76, 129, 0.35);
+}
+
+.btn-outline-primary {
+    color: var(--hap-primary);
+    border-color: var(--hap-slate-300);
+    background-color: #ffffff;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: var(--hap-primary-light);
+    border-color: var(--hap-primary);
+    color: var(--hap-primary-hover);
+}
+
+.btn-success {
+    background: linear-gradient(145deg, #059669, #047857);
+    border-color: #047857;
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+}
+
+.btn-success:hover {
+    background: linear-gradient(145deg, #047857, #065f46);
+    border-color: #065f46;
+}
+
+.btn-danger {
+    background: linear-gradient(145deg, #dc2626, #b91c1c);
+    border-color: #b91c1c;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.25);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(145deg, #b91c1c, #991b1b);
+    border-color: #991b1b;
+}
+
+.btn-warning {
+    background: linear-gradient(145deg, #d97706, #b45309);
+    border-color: #b45309;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.25);
+}
+
+.btn-warning:hover {
+    background: linear-gradient(145deg, #b45309, #92400e);
+    border-color: #92400e;
+    color: #ffffff;
+}
+
+.btn-outline-secondary {
+    border-color: var(--hap-slate-300);
+    color: var(--hap-slate-700);
+    background: #ffffff;
+}
+
+.btn-outline-secondary:hover {
+    background: var(--hap-slate-100);
+    border-color: var(--hap-slate-400);
+    color: var(--hap-slate-900);
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.825rem;
+    border-radius: var(--hap-radius-sm);
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.05rem;
+    border-radius: var(--hap-radius-md);
+}
+
+/* ==========================================================================
+   Form Controls & Inputs
+   ========================================================================== */
+.form-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--hap-slate-700);
+    margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+    border: 1.5px solid var(--hap-slate-300);
+    border-radius: var(--hap-radius-md);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.95rem;
+    color: var(--hap-slate-800);
+    background-color: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--hap-slate-400);
+}
+
+.form-check-input {
+    width: 1.15em;
+    height: 1.15em;
+    border: 1.5px solid var(--hap-slate-300);
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--hap-primary);
+    border-color: var(--hap-primary);
+}
+
+.form-check-label {
+    font-size: 0.925rem;
+    color: var(--hap-slate-700);
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Status Badges (Healthcare & Insurance styling)
+   ========================================================================== */
+.badge {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    letter-spacing: 0.01em;
+    border: 1px solid transparent;
+}
+
+.badge.rounded-pill {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+}
+
+/* Redefined text-bg- classes for refined clinical look */
+.text-bg-secondary {
+    background-color: var(--hap-slate-100) !important;
+    color: var(--hap-slate-700) !important;
+    border-color: var(--hap-slate-300) !important;
+}
+
+.text-bg-primary {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
+}
+
+.text-bg-success {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    border-color: #a7f3d0 !important;
+}
+
+.text-bg-warning {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+}
+
+.text-bg-danger {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--hap-slate-800);
+    font-size: 0.925rem;
+    margin-bottom: 0;
+}
+
+.table th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    color: var(--hap-slate-600);
+    background-color: var(--hap-slate-50);
+    border-bottom: 1.5px solid var(--hap-slate-200);
+    padding: 0.85rem 1rem;
+}
+
+.table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--hap-slate-200);
+    vertical-align: middle;
+}
+
+.table-hover tbody tr {
+    transition: background-color 0.12s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(14, 165, 233, 0.04);
+}
+
+.table tfoot th,
+.table tfoot td {
+    font-weight: 700;
+    background-color: var(--hap-slate-50);
+    border-top: 2px solid var(--hap-slate-300);
+    border-bottom: none;
+    padding: 0.85rem 1rem;
+}
+
+/* ==========================================================================
+   Alerts
+   ========================================================================== */
+.alert {
+    border-radius: var(--hap-radius-md);
+    border-width: 1px;
+    padding: 1rem 1.25rem;
+    font-size: 0.925rem;
+    box-shadow: var(--hap-shadow-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background-color: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+.alert-warning {
+    background-color: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.alert-info {
+    background-color: #f0fdfa;
+    border-color: #99f6e4;
+    color: #115e59;
+}
+
+.alert-secondary {
+    background-color: var(--hap-slate-100);
+    border-color: var(--hap-slate-300);
+    color: var(--hap-slate-700);
+}
+
+/* ==========================================================================
+   Step Indicators (for Multi-Step Requests)
+   ========================================================================== */
+.hap-step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.hap-step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    background: var(--hap-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   Hero & Landing Page styling
+   ========================================================================== */
+.hap-hero-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+    font-size: 0.825rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.hap-feature-card {
+    background: #ffffff;
+    border: 1px solid var(--hap-slate-200);
+    border-radius: var(--hap-radius-lg);
+    padding: 1.5rem;
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hap-feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hap-shadow-md);
+    border-color: #bae6fd;
+}
+
+.hap-feature-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--hap-radius-md);
+    background: #e0f2fe;
+    color: #0284c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   Print Rules
+   ========================================================================== */
 @media print {
     .no-print {
         display: none !important;
     }
 
     body {
-        background: #fff;
+        background: #fff !important;
+        color: #000 !important;
     }
 
     .container {
         max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     .card {
-        border-color: #999;
+        border-color: #ccc !important;
         box-shadow: none !important;
+    }
+
+    .table th {
+        background-color: #eee !important;
+        color: #000 !important;
     }
 }

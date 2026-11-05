@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Démonstration Vidéo Interactive · Health Authorization Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f4c81;
+            --primary-dark: #0a2540;
+            --teal: #0d9488;
+            --bg: #0b1329;
+            --surface: #131f3d;
+            --surface-light: #1c2b52;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #0ea5e9, #0d9488);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .header-tag {
+            background: rgba(14, 165, 233, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 9999px;
+            padding: 0.25rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1360px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Player Container */
+        .video-player {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .screen-stage img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease, transform 0.4s ease;
+        }
+
+        .screen-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .badge-scene {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .badge-category {
+            background: rgba(13, 148, 136, 0.85);
+            color: #ffffff;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Playhead Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Controls & Narrative Box */
+        .controls-panel {
+            padding: 1.5rem 2rem;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .narrative-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .scene-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .scene-description {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: var(--text-muted);
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .playback-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        button.btn-ctrl {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.6rem 1.15rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        button.btn-ctrl:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        button.btn-primary-ctrl {
+            background: linear-gradient(135deg, #0ea5e9, #0f4c81);
+            border: none;
+            color: #fff;
+            padding: 0.6rem 1.4rem;
+        }
+
+        button.btn-primary-ctrl:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .timeline-indicator {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Thumbnails Strip */
+        .thumbnails-strip {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .thumb-item {
+            flex: 0 0 140px;
+            aspect-ratio: 16 / 10;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.55;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .thumb-item:hover {
+            opacity: 0.85;
+        }
+
+        .thumb-item.active {
+            opacity: 1;
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumb-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.75);
+            font-size: 0.65rem;
+            padding: 2px 4px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-icon">🛡️</div>
+            <div>Health Authorization Platform</div>
+        </div>
+        <div class="header-tag">Démonstration & Validation Produit</div>
+    </header>
+
+    <main>
+        <div class="video-player">
+            <!-- Stage / Image Display -->
+            <div class="screen-stage" id="screenStage">
+                <div class="screen-overlay">
+                    <span class="badge-scene" id="badgeScene">01 / 16</span>
+                    <span class="badge-category" id="badgeCategory">Portail Public</span>
+                </div>
+                <img id="stageImg" src="screenshots/01_landing_page.png" alt="Démonstration">
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar-container" id="progressBarContainer">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- Narrative Box & Playback Controls -->
+            <div class="controls-panel">
+                <div class="narrative-box">
+                    <h1 class="scene-title" id="sceneTitle">Accueil · Plateforme Santé & Assurances</h1>
+                    <p class="scene-description" id="sceneDesc">
+                        Portail moderne de tiers-payant dématérialisé connectant hôpitaux et compagnies d’assurance.
+                    </p>
+                </div>
+
+                <div class="controls-row">
+                    <div class="playback-buttons">
+                        <button class="btn-ctrl" id="prevBtn" title="Précédent (Flèche gauche)">◀ Précédent</button>
+                        <button class="btn-ctrl btn-primary-ctrl" id="playBtn">▶ Lecture Automatique</button>
+                        <button class="btn-ctrl" id="nextBtn" title="Suivant (Flèche droite)">Suivant ▶</button>
+                    </div>
+
+                    <div class="timeline-indicator" id="timelineIndicator">
+                        Étape <strong class="text-white">1</strong> sur 16 · <span id="autoTimerText">En pause</span>
+                    </div>
+
+                    <div class="playback-buttons">
+                        <button class="btn-ctrl" id="fullscreenBtn" title="Plein écran">⛶ Plein écran</button>
+                    </div>
+                </div>
+
+                <!-- Thumbnails Bar -->
+                <div class="thumbnails-strip" id="thumbsStrip"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Health Authorization Platform · Démonstration end-to-end automatisée · Architecture Laravel & Clean Frontend
+    </footer>
+
+    <script>
+        const scenes = [
+            {
+                file: "01_landing_page.png",
+                title: "Accueil · Plateforme Santé & Assurances",
+                description: "Portail moderne de tiers-payant dématérialisé connectant hôpitaux et compagnies d’assurance.",
+                badge: "Portail Public"
+            },
+            {
+                file: "02_login_page.png",
+                title: "Espace d'authentification sécurisé",
+                description: "Connexion professionnelle sécurisée avec badges de confiance et sélecteur de comptes de test par rôle.",
+                badge: "Sécurité"
+            },
+            {
+                file: "03_facility_dashboard.png",
+                title: "Tableau de bord Établissement Hospitalier",
+                description: "Vue personnalisée pour l'Agent hospitalier : émission de demandes, suivi des dossiers et accès aux bons.",
+                badge: "Hôpital"
+            },
+            {
+                file: "04_facility_requests_list.png",
+                title: "Suivi des dossiers de prise en charge",
+                description: "Gestion des demandes émises par l'hôpital, statuts en temps réel et horodatage.",
+                badge: "Hôpital"
+            },
+            {
+                file: "05_create_request_search.png",
+                title: "Étape 1 · Recherche de la couverture patient",
+                description: "Sélection de l'assureur conventionné et recherche temps-réel du patient par nom ou matricule.",
+                badge: "Hôpital"
+            },
+            {
+                file: "06_create_request_acts.png",
+                title: "Étapes 2 & 3 · Sélection du contrat et saisie des actes",
+                description: "Contrôle des droits du bénéficiaire, sélection du taux et devis d'actes avec montants en FCFA.",
+                badge: "Hôpital"
+            },
+            {
+                file: "07_request_draft_view.png",
+                title: "Dossier de prise en charge (Brouillon)",
+                description: "Décomposition automatique : part couverte par l'assureur, ticket modérateur patient et téléversement des pièces.",
+                badge: "Hôpital"
+            },
+            {
+                file: "08_official_guarantee_voucher.png",
+                title: "Bon de prise en charge officiel (Garantie tiers-payant)",
+                description: "Document officiel certifié avec dates de validité contractuelle, décomposition tarifaire et format prêt à l'impression.",
+                badge: "Bon Officiel"
+            },
+            {
+                file: "09_insurer_dashboard.png",
+                title: "Tableau de bord Gestionnaire Assureur",
+                description: "Cockpit de gestion pour la compagnie d'assurance : suivi des demandes reçues et du portefeuille souscripteurs.",
+                badge: "Assurance"
+            },
+            {
+                file: "10_insurer_inbox.png",
+                title: "File d'instruction des demandes reçues",
+                description: "Filtres par statut (Toutes, Envoyées, Informations demandées, Approuvées, Refusées) et liste des demandes des cliniques.",
+                badge: "Assurance"
+            },
+            {
+                file: "11_coverage_roster.png",
+                title: "Portefeuille assuré & Import CSV",
+                description: "Répertoire des assurés, bénéficiaires affiliés, polices d'assurance et module d'importation sécurisée par fichier CSV.",
+                badge: "Assurance"
+            },
+            {
+                file: "12_admin_audit_logs.png",
+                title: "Journal d'audit et traçabilité réglementaire",
+                description: "Traçabilité exhaustive de toutes les actions sensibles (création, téléversement, instruction, décision).",
+                badge: "Conformité"
+            },
+            {
+                file: "13_admin_partnerships.png",
+                title: "Gestion des conventions & partenariats",
+                description: "Matrice de configuration bilatérale entre chaque établissement de santé et les assureurs partenaires.",
+                badge: "Administration"
+            },
+            {
+                file: "14_admin_medical_catalog.png",
+                title: "Référentiel des actes et historique tarifaire",
+                description: "Catalogue commun des actes médicaux avec gestion de l'historique des tarifs officiels conventionnés.",
+                badge: "Administration"
+            },
+            {
+                file: "15_admin_organizations.png",
+                title: "Répertoire des organisations de santé",
+                description: "Gestion centralisée des cliniques, hôpitaux et compagnies d'assurances conventionnées.",
+                badge: "Administration"
+            },
+            {
+                file: "16_admin_users.png",
+                title: "Gestion des comptes et des permissions",
+                description: "Attribution stricte des rôles et rattachements organisationnels (séparation des pouvoirs métier).",
+                badge: "Administration"
+            }
+        ];
+
+        let currentIndex = 0;
+        let isPlaying = false;
+        let timer = null;
+        const SCENE_DURATION = 4500; // 4.5 seconds per scene
+        let progressStart = 0;
+        let progressTimer = null;
+
+        const stageImg = document.getElementById('stageImg');
+        const badgeScene = document.getElementById('badgeScene');
+        const badgeCategory = document.getElementById('badgeCategory');
+        const sceneTitle = document.getElementById('sceneTitle');
+        const sceneDesc = document.getElementById('sceneDesc');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const playBtn = document.getElementById('playBtn');
+        const progressFill = document.getElementById('progressFill');
+        const timelineIndicator = document.getElementById('timelineIndicator');
+        const autoTimerText = document.getElementById('autoTimerText');
+        const thumbsStrip = document.getElementById('thumbsStrip');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        // Build thumbnails
+        scenes.forEach((scene, index) => {
+            const thumb = document.createElement('div');
+            thumb.className = `thumb-item ${index === 0 ? 'active' : ''}`;
+            thumb.innerHTML = `
+                <img src="screenshots/${scene.file}" alt="${scene.title}">
+                <div class="thumb-label">${index + 1}. ${scene.badge}</div>
+            `;
+            thumb.addEventListener('click', () => {
+                goToScene(index);
+            });
+            thumbsStrip.appendChild(thumb);
+        });
+
+        function updateThumbnails() {
+            const thumbs = thumbsStrip.querySelectorAll('.thumb-item');
+            thumbs.forEach((t, i) => {
+                t.classList.toggle('active', i === currentIndex);
+            });
+            thumbs[currentIndex]?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+        }
+
+        function renderScene() {
+            const scene = scenes[currentIndex];
+            stageImg.style.opacity = '0';
+            setTimeout(() => {
+                stageImg.src = `screenshots/${scene.file}`;
+                stageImg.style.opacity = '1';
+            }, 120);
+
+            badgeScene.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(scenes.length).padStart(2, '0')}`;
+            badgeCategory.textContent = scene.badge;
+            sceneTitle.textContent = scene.title;
+            sceneDesc.textContent = scene.description;
+            timelineIndicator.innerHTML = `Étape <strong class="text-white">${currentIndex + 1}</strong> sur ${scenes.length} · <span id="autoTimerText">${isPlaying ? 'En lecture' : 'En pause'}</span>`;
+            updateThumbnails();
+            resetProgressBar();
+        }
+
+        function resetProgressBar() {
+            clearInterval(progressTimer);
+            progressFill.style.width = `${((currentIndex) / scenes.length) * 100}%`;
+            if (isPlaying) {
+                const startTime = Date.now();
+                progressTimer = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const percent = Math.min(100, (elapsed / SCENE_DURATION) * 100);
+                    const basePercent = (currentIndex / scenes.length) * 100;
+                    const stepPercent = (1 / scenes.length) * 100;
+                    progressFill.style.width = `${basePercent + (stepPercent * (percent / 100))}%`;
+                }, 50);
+            }
+        }
+
+        function nextScene() {
+            currentIndex = (currentIndex + 1) % scenes.length;
+            renderScene();
+        }
+
+        function prevScene() {
+            currentIndex = (currentIndex - 1 + scenes.length) % scenes.length;
+            renderScene();
+        }
+
+        function goToScene(index) {
+            currentIndex = index;
+            renderScene();
+            if (isPlaying) {
+                resetAutoPlayTimer();
+            }
+        }
+
+        function startAutoPlay() {
+            isPlaying = true;
+            playBtn.textContent = '⏸ Pause';
+            playBtn.classList.remove('btn-primary-ctrl');
+            resetAutoPlayTimer();
+        }
+
+        function pauseAutoPlay() {
+            isPlaying = false;
+            playBtn.textContent = '▶ Lecture Automatique';
+            playBtn.classList.add('btn-primary-ctrl');
+            clearTimeout(timer);
+            clearInterval(progressTimer);
+            renderScene();
+        }
+
+        function resetAutoPlayTimer() {
+            clearTimeout(timer);
+            resetProgressBar();
+            timer = setTimeout(() => {
+                nextScene();
+                if (isPlaying) {
+                    resetAutoPlayTimer();
+                }
+            }, SCENE_DURATION);
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            nextScene();
+            if (isPlaying) resetAutoPlayTimer();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            prevScene();
+            if (isPlaying) resetAutoPlayTimer();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextScene();
+                if (isPlaying) resetAutoPlayTimer();
+            } else if (e.key === 'ArrowLeft') {
+                prevScene();
+                if (isPlaying) resetAutoPlayTimer();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                if (isPlaying) pauseAutoPlay(); else startAutoPlay();
+            }
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            const stage = document.getElementById('screenStage');
+            if (!document.fullscreenElement) {
+                stage.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        renderScene();
+    </script>
+</body>
+</html>

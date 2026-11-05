@@ -1,0 +1,98 @@
+[
+  {
+    "file": "01_landing_page.png",
+    "title": "Accueil · Plateforme Santé & Assurances",
+    "description": "Portail moderne de tiers-payant dématérialisé connectant hôpitaux et compagnies d’assurance.",
+    "badge": "Portail Public"
+  },
+  {
+    "file": "02_login_page.png",
+    "title": "Espace d'authentification sécurisé",
+    "description": "Connexion professionnelle sécurisée avec badges de confiance et sélecteur de comptes de test par rôle.",
+    "badge": "Sécurité"
+  },
+  {
+    "file": "03_facility_dashboard.png",
+    "title": "Tableau de bord Établissement Hospitalier",
+    "description": "Vue personnalisée pour l'Agent hospitalier : émission de demandes, suivi des dossiers et accès aux bons.",
+    "badge": "Hôpital"
+  },
+  {
+    "file": "04_facility_requests_list.png",
+    "title": "Suivi des dossiers de prise en charge",
+    "description": "Gestion des demandes émises par l'hôpital, statuts en temps réel et horodatage.",
+    "badge": "Hôpital"
+  },
+  {
+    "file": "05_create_request_search.png",
+    "title": "Étape 1 · Recherche de la couverture patient",
+    "description": "Sélection de l'assureur conventionné et recherche temps-réel du patient par nom ou matricule.",
+    "badge": "Hôpital"
+  },
+  {
+    "file": "06_create_request_acts.png",
+    "title": "Étapes 2 & 3 · Sélection du contrat et saisie des actes",
+    "description": "Contrôle des droits du bénéficiaire, sélection du taux et devis d'actes avec montants en FCFA.",
+    "badge": "Hôpital"
+  },
+  {
+    "file": "07_request_draft_view.png",
+    "title": "Dossier de prise en charge (Brouillon)",
+    "description": "Décomposition automatique : part couverte par l'assureur, ticket modérateur patient et téléversement des pièces.",
+    "badge": "Hôpital"
+  },
+  {
+    "file": "08_official_guarantee_voucher.png",
+    "title": "Bon de prise en charge officiel (Garantie tiers-payant)",
+    "description": "Document officiel certifié avec dates de validité contractuelle, décomposition tarifaire et format prêt à l'impression.",
+    "badge": "Bon Officiel"
+  },
+  {
+    "file": "09_insurer_dashboard.png",
+    "title": "Tableau de bord Gestionnaire Assureur",
+    "description": "Cockpit de gestion pour la compagnie d'assurance : suivi des demandes reçues et du portefeuille souscripteurs.",
+    "badge": "Assurance"
+  },
+  {
+    "file": "10_insurer_inbox.png",
+    "title": "File d'instruction des demandes reçues",
+    "description": "Filtres par statut (Toutes, Envoyées, Informations demandées, Approuvées, Refusées) et liste des demandes des cliniques.",
+    "badge": "Assurance"
+  },
+  {
+    "file": "11_coverage_roster.png",
+    "title": "Portefeuille assuré & Import CSV",
+    "description": "Répertoire des assurés, bénéficiaires affiliés, polices d'assurance et module d'importation sécurisée par fichier CSV.",
+    "badge": "Assurance"
+  },
+  {
+    "file": "12_admin_audit_logs.png",
+    "title": "Journal d'audit et traçabilité réglementaire",
+    "description": "Traçabilité exhaustive de toutes les actions sensibles (création, téléversement, instruction, décision).",
+    "badge": "Conformité"
+  },
+  {
+    "file": "13_admin_partnerships.png",
+    "title": "Gestion des conventions & partenariats",
+    "description": "Matrice de configuration bilatérale entre chaque établissement de santé et les assureurs partenaires.",
+    "badge": "Administration"
+  },
+  {
+    "file": "14_admin_medical_catalog.png",
+    "title": "Référentiel des actes et historique tarifaire",
+    "description": "Catalogue commun des actes médicaux avec gestion de l'historique des tarifs officiels conventionnés.",
+    "badge": "Administration"
+  },
+  {
+    "file": "15_admin_organizations.png",
+    "title": "Répertoire des organisations de santé",
+    "description": "Gestion centralisée des cliniques, hôpitaux et compagnies d'assurances conventionnées.",
+    "badge": "Administration"
+  },
+  {
+    "file": "16_admin_users.png",
+    "title": "Gestion des comptes et des permissions",
+    "description": "Attribution stricte des rôles et rattachements organisationnels (séparation des pouvoirs métier).",
+    "badge": "Administration"
+  }
+]
